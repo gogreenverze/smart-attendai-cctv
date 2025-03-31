@@ -1,12 +1,27 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import AppSidebar from './AppSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { initializeDatabase } from '@/database/connection';
 
 const AppLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    // Initialize database when the application starts
+    const setupDatabase = async () => {
+      try {
+        await initializeDatabase();
+        console.log('Database initialized successfully in AppLayout');
+      } catch (error) {
+        console.error('Failed to initialize database:', error);
+      }
+    };
+
+    setupDatabase();
+  }, []);
 
   if (isLoading) {
     return (
