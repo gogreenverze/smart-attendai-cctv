@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import AppSidebar from './AppSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { initializeDatabase } from '@/database/connection';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 const AppLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
