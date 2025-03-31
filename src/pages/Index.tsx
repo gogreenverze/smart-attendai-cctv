@@ -2,18 +2,28 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { initializeDatabase } from '@/database/connection';
+import { toast } from '@/components/ui/use-toast';
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Initialize database when the index page loads
+    // Initialize mock database when the index page loads
     const setupDatabase = async () => {
       try {
         await initializeDatabase();
-        console.log('Database initialized successfully');
+        console.log('Mock database initialized successfully');
+        toast({
+          title: "Database Initialized",
+          description: "Browser-compatible mock database is ready.",
+        });
       } catch (error) {
-        console.error('Failed to initialize database:', error);
+        console.error('Failed to initialize mock database:', error);
+        toast({
+          variant: "destructive",
+          title: "Database Error",
+          description: "Failed to initialize mock database. Please refresh the page.",
+        });
       }
     };
 

@@ -1,41 +1,48 @@
 
-import knex, { Knex } from 'knex';
-import { createTables, seedInitialData } from './schema';
-import path from 'path';
+// This is a browser-compatible mock implementation of the database connection
+import { Knex } from 'knex';
 
-// SQLite database connection configuration
-let db: Knex | null = null;
+// Mock database connection for browser environment
+let db: any = null;
 
-export async function initializeDatabase(): Promise<Knex> {
+export async function initializeDatabase(): Promise<any> {
   try {
     if (!db) {
-      console.log('Initializing database connection...');
+      console.log('Initializing mock database in browser environment...');
       
-      db = knex({
-        client: 'better-sqlite3',
-        connection: {
-          filename: path.resolve(__dirname, '../../school_attendance.sqlite'),
+      // Create mock db object
+      db = {
+        schema: {
+          hasTable: async () => false,
+          createTable: async () => true,
         },
-        useNullAsDefault: true,
-      });
-
-      // Create tables if they don't exist
-      await createTables(db);
+        // Additional mock methods will be added as needed
+        raw: async (sql: string) => ({ rows: [] }),
+        select: () => db,
+        where: () => db,
+        insert: () => [1],
+        update: () => 1,
+        delete: () => 1,
+        join: () => db,
+        andWhere: () => db,
+        first: () => ({}),
+        count: () => db,
+        orderBy: () => db,
+        limit: () => db,
+        whereBetween: () => db,
+      };
       
-      // Seed initial data
-      await seedInitialData(db);
-      
-      console.log('Database initialized successfully');
+      console.log('Mock database initialized successfully');
     }
     
     return db;
   } catch (error) {
-    console.error('Error initializing database:', error);
+    console.error('Error initializing mock database:', error);
     throw error;
   }
 }
 
-export function getDbConnection(): Knex {
+export function getDbConnection(): any {
   if (!db) {
     throw new Error('Database not initialized. Call initializeDatabase() first.');
   }
@@ -44,8 +51,7 @@ export function getDbConnection(): Knex {
 
 export async function closeDatabase(): Promise<void> {
   if (db) {
-    await db.destroy();
     db = null;
-    console.log('Database connection closed');
+    console.log('Mock database connection closed');
   }
 }

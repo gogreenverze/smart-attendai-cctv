@@ -5,18 +5,24 @@ import { useAuth } from '@/contexts/AuthContext';
 import AppSidebar from './AppSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { initializeDatabase } from '@/database/connection';
+import { toast } from '@/components/ui/use-toast';
 
 const AppLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    // Initialize database when the application starts
+    // Initialize mock database when the application starts
     const setupDatabase = async () => {
       try {
         await initializeDatabase();
-        console.log('Database initialized successfully in AppLayout');
+        console.log('Mock database initialized successfully in AppLayout');
       } catch (error) {
-        console.error('Failed to initialize database:', error);
+        console.error('Failed to initialize mock database:', error);
+        toast({
+          variant: "destructive",
+          title: "Database Error",
+          description: "Failed to initialize mock database. Please refresh the page.",
+        });
       }
     };
 
