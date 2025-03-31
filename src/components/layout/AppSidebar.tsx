@@ -31,11 +31,12 @@ import {
   Sun
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Toggle } from '@/components/ui/toggle';
+import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
 
 const AppSidebar: React.FC = () => {
   const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -63,18 +64,14 @@ const AppSidebar: React.FC = () => {
     return currentPath === path;
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
-
   return (
     <Sidebar className="bg-school-primary text-white border-r-0">
       <SidebarHeader className="flex items-center justify-between p-4 border-b border-white/10">
         <div className="flex items-center space-x-2">
           <img 
-            src="/placeholder.svg" 
+            src="/lovable-uploads/1f4f9fa5-0aaa-4bad-a14a-688644038c53.png" 
             alt="School Logo" 
-            className="h-8 w-8 bg-white rounded-full p-1"
+            className="h-12 w-12 rounded-full bg-white p-1"
           />
           <div>
             <h1 className="font-bold text-lg">Banadurai</h1>
@@ -110,21 +107,22 @@ const AppSidebar: React.FC = () => {
             <div className="flex items-center space-x-3">
               <Avatar>
                 <AvatarImage src={user?.avatar} />
-                <AvatarFallback className="bg-white/10">{user?.name.charAt(0)}</AvatarFallback>
+                <AvatarFallback className="bg-white/10">{user?.name?.charAt(0)}</AvatarFallback>
               </Avatar>
               <div>
                 <p className="font-medium">{user?.name}</p>
-                <p className="text-xs opacity-80 capitalize">{user?.role.replace('_', ' ')}</p>
+                <p className="text-xs opacity-80 capitalize">{user?.role?.replace('_', ' ')}</p>
               </div>
             </div>
-            <Toggle 
-              pressed={theme === 'dark'} 
-              onPressedChange={toggleTheme}
-              className="hover:bg-white/10 text-white"
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={toggleTheme}
+              className="rounded-full bg-white/10 border-white/20 hover:bg-white/20 text-white"
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
-            </Toggle>
+            </Button>
           </div>
           <div>
             <SidebarMenu>

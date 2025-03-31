@@ -48,16 +48,16 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-school-light to-white flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-school-light to-white dark:from-school-dark dark:to-gray-900 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img 
-            src="/placeholder.svg" 
+            src="/lovable-uploads/1f4f9fa5-0aaa-4bad-a14a-688644038c53.png" 
             alt="School Logo" 
-            className="h-16 w-16 bg-school-primary rounded-full p-2 mx-auto mb-4"
+            className="h-24 w-24 mx-auto mb-4 bg-white rounded-full p-1.5 shadow-md"
           />
-          <h1 className="text-3xl font-bold text-school-primary">Banadurai Higher Secondary School</h1>
-          <p className="text-gray-600 mt-2">Attendance Management System</p>
+          <h1 className="text-3xl font-bold text-school-primary dark:text-white">Banadurai Higher Secondary School</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">Attendance Management System</p>
         </div>
         
         <Card className="border-school-primary/10 shadow-lg">
@@ -102,7 +102,7 @@ const Login: React.FC = () => {
               </Button>
               
               <div className="w-full">
-                <p className="text-sm text-center mb-2 text-gray-500">Quick Demo Login as:</p>
+                <p className="text-sm text-center mb-2 text-gray-500 dark:text-gray-400">Quick Demo Login as:</p>
                 <div className="grid grid-cols-3 gap-2">
                   <Button type="button" onClick={() => handleDemoLogin('admin')} variant="outline" size="sm">Admin</Button>
                   <Button type="button" onClick={() => handleDemoLogin('teacher')} variant="outline" size="sm">Teacher</Button>

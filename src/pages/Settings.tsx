@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -7,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Clock, Database, Bell, Shield, Moon, Sun, Upload, DownloadCloud, Save } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const Settings = () => {
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [appNotifications, setAppNotifications] = useState(true);
   const [autoBackup, setAutoBackup] = useState(false);
@@ -93,7 +92,7 @@ const Settings = () => {
                     <Switch 
                       id="theme" 
                       checked={theme === 'dark'} 
-                      onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                      onCheckedChange={toggleTheme}
                     />
                     <Moon className="h-5 w-5" />
                   </div>
