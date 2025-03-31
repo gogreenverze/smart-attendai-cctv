@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +24,7 @@ import {
   LineChart,
   Line
 } from 'recharts';
-import { Download, FileText, Printer, Filter } from 'lucide-react';
+import { Download, FileText, Printer, Filter, Search } from 'lucide-react';
 
 // Mock data for attendance by class
 const attendanceByClassData = [

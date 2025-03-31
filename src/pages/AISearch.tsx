@@ -20,7 +20,8 @@ import {
   MapPin, 
   Sliders, 
   Image as ImageIcon,
-  RefreshCw
+  RefreshCw,
+  Download
 } from 'lucide-react';
 
 // Mock search results

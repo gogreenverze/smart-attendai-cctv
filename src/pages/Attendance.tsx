@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,8 +23,17 @@ import {
   UserCheck 
 } from 'lucide-react';
 
-// Mock data for students in a class
-const studentsData = [
+type AttendanceStatus = 'present' | 'absent' | 'late';
+
+interface Student {
+  id: number;
+  name: string;
+  status: AttendanceStatus;
+  rollNumber: string;
+  photo: string;
+}
+
+const studentsData: Student[] = [
   { id: 1, name: 'Amit Sharma', status: 'present', rollNumber: '10A01', photo: '/placeholder.svg' },
   { id: 2, name: 'Priya Patel', status: 'present', rollNumber: '10A02', photo: '/placeholder.svg' },
   { id: 3, name: 'Rahul Singh', status: 'absent', rollNumber: '10A03', photo: '/placeholder.svg' },
@@ -38,7 +46,6 @@ const studentsData = [
   { id: 10, name: 'Deepak Joshi', status: 'present', rollNumber: '10A10', photo: '/placeholder.svg' },
 ];
 
-// Mock data for classes
 const classesList = [
   { id: 1, name: 'Class 10A' },
   { id: 2, name: 'Class 9B' },
@@ -46,16 +53,6 @@ const classesList = [
   { id: 4, name: 'Class 11A' },
   { id: 5, name: 'Class 7B' },
 ];
-
-type AttendanceStatus = 'present' | 'absent' | 'late';
-
-interface Student {
-  id: number;
-  name: string;
-  status: AttendanceStatus;
-  rollNumber: string;
-  photo: string;
-}
 
 const Attendance: React.FC = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
