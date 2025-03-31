@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, Plus, MoreVertical } from 'lucide-react';
+import { Search, Plus, MoreVertical, Filter, Loader2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DatabaseService } from '@/database/service';
 import { toast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface User {
   user_id: number;
@@ -26,33 +27,42 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeRole, setActiveRole] = useState('all');
+  const { user: currentUser } = useAuth();
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const fetchedUsers = await DatabaseService.users.getWithRoles();
+        setLoading(true);
+        let fetchedUsers = await DatabaseService.users.getWithRoles();
         
         // If no users exist, add some mock users
         if (fetchedUsers.length === 0) {
           const mockUsers = [
-            { user_id: 1, username: 'admin', email: 'admin@school.edu', role_name: 'admin', created_at: new Date().toISOString() },
-            { user_id: 2, username: 'teacher1', email: 'teacher1@school.edu', role_name: 'teacher', created_at: new Date().toISOString() },
-            { user_id: 3, username: 'teacher2', email: 'teacher2@school.edu', role_name: 'teacher', created_at: new Date().toISOString() },
-            { user_id: 4, username: 'student1', email: 'student1@school.edu', role_name: 'student', created_at: new Date().toISOString() },
-            { user_id: 5, username: 'parent1', email: 'parent1@school.edu', role_name: 'parent', created_at: new Date().toISOString() },
-            { user_id: 6, username: 'operator', email: 'operator@school.edu', role_name: 'cctv_operator', created_at: new Date().toISOString() },
+            { user_id: 1, username: 'admin', email: 'admin@banadurai.edu', role_name: 'admin', created_at: new Date().toISOString() },
+            { user_id: 2, username: 'teacher1', email: 'teacher1@banadurai.edu', role_name: 'teacher', created_at: new Date().toISOString() },
+            { user_id: 3, username: 'teacher2', email: 'teacher2@banadurai.edu', role_name: 'teacher', created_at: new Date().toISOString() },
+            { user_id: 4, username: 'student1', email: 'student1@banadurai.edu', role_name: 'student', created_at: new Date().toISOString() },
+            { user_id: 5, username: 'parent1', email: 'parent1@banadurai.edu', role_name: 'parent', created_at: new Date().toISOString() },
+            { user_id: 6, username: 'operator', email: 'cctv@banadurai.edu', role_name: 'cctv_operator', created_at: new Date().toISOString() },
           ];
           
           for (const user of mockUsers) {
-            await DatabaseService.users.create(user);
+            await DatabaseService.users.create({
+              ...user,
+              password_hash: 'hashed_password',
+              role_id: getRoleId(user.role_name),
+              first_name: user.username,
+              last_name: 'User',
+              is_active: true
+            });
           }
           
-          setUsers(mockUsers);
-          setFilteredUsers(mockUsers);
-        } else {
-          setUsers(fetchedUsers);
-          setFilteredUsers(fetchedUsers);
+          fetchedUsers = await DatabaseService.users.getWithRoles();
         }
+        
+        console.log('Fetched users:', fetchedUsers);
+        setUsers(fetchedUsers);
+        setFilteredUsers(fetchedUsers);
       } catch (error) {
         console.error('Failed to fetch users:', error);
         toast({
@@ -65,8 +75,13 @@ const Users = () => {
       }
     };
 
-    fetchUsers();
-  }, []);
+    // Only fetch if user is admin
+    if (currentUser?.role === 'admin') {
+      fetchUsers();
+    } else {
+      setLoading(false);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     // Filter users based on search query and active role
@@ -94,22 +109,48 @@ const Users = () => {
     setActiveRole(role);
   };
 
+  const getRoleId = (roleName: string): number => {
+    switch (roleName) {
+      case 'admin': return 1;
+      case 'teacher': return 2;
+      case 'student': return 3;
+      case 'parent': return 4;
+      case 'cctv_operator': return 5;
+      default: return 3;
+    }
+  };
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'admin':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
       case 'teacher':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
       case 'student':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
       case 'parent':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
       case 'cctv_operator':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
+  
+  // Display access denied message if not admin
+  if (currentUser?.role !== 'admin') {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh]">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+          <p className="text-muted-foreground mb-6">You don't have permission to access the User Management section.</p>
+          <Button asChild>
+            <a href="/dashboard">Return to Dashboard</a>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -148,8 +189,9 @@ const Users = () => {
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-pulse-slow">
-            <p className="text-lg font-medium">Loading users...</p>
+          <div className="flex flex-col items-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="mt-2 text-lg font-medium">Loading users...</p>
           </div>
         </div>
       ) : (
@@ -157,11 +199,13 @@ const Users = () => {
           {filteredUsers.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredUsers.map((user) => (
-                <Card key={user.user_id} className="card-hover">
+                <Card key={user.user_id} className="card-hover dark:bg-gray-800/50 dark:border-gray-700">
                   <CardHeader className="flex flex-row items-center gap-4 space-y-0">
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={user.avatar} alt={user.username} />
-                      <AvatarFallback>{user.username[0].toUpperCase()}</AvatarFallback>
+                      <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary/20">
+                        {user.username[0].toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <CardTitle className="text-lg">{user.username}</CardTitle>
@@ -179,7 +223,7 @@ const Users = () => {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>Edit user</DropdownMenuItem>
                         <DropdownMenuItem>Change role</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">Delete user</DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600 dark:text-red-400">Delete user</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </CardHeader>
@@ -197,7 +241,7 @@ const Users = () => {
               ))}
             </div>
           ) : (
-            <div className="flex justify-center items-center h-64 border rounded-md">
+            <div className="flex justify-center items-center h-64 border rounded-md dark:border-gray-700">
               <div className="text-center">
                 <p className="text-lg font-medium">No users found</p>
                 <p className="text-muted-foreground">Try adjusting your search or filter to find what you're looking for.</p>

@@ -6,11 +6,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { useTheme } from '@/contexts/ThemeContext';
+import { Moon, Sun } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, isLoading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,6 +52,18 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-school-light to-white dark:from-school-dark dark:to-gray-900 flex flex-col items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={toggleTheme}
+          className="rounded-full bg-white/10 border-white/20 hover:bg-white/20"
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+        </Button>
+      </div>
+      
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img 
@@ -60,7 +75,7 @@ const Login: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-300 mt-2">Attendance Management System</p>
         </div>
         
-        <Card className="border-school-primary/10 shadow-lg">
+        <Card className="border-school-primary/10 shadow-lg dark:bg-gray-800/50 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="text-2xl text-center">Login</CardTitle>
             <CardDescription className="text-center">

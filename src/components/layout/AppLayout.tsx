@@ -3,12 +3,15 @@ import React, { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import AppSidebar from './AppSidebar';
+import MobileNavigation from './MobileNavigation';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { initializeDatabase } from '@/database/connection';
 import { toast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const AppLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Initialize mock database when the application starts
@@ -29,6 +32,19 @@ const AppLayout: React.FC = () => {
     setupDatabase();
   }, []);
 
+  useEffect(() => {
+    // Add class to body for PWA padding
+    if (isMobile) {
+      document.body.classList.add('has-mobile-nav');
+    } else {
+      document.body.classList.remove('has-mobile-nav');
+    }
+    
+    return () => {
+      document.body.classList.remove('has-mobile-nav');
+    };
+  }, [isMobile]);
+
   if (isLoading) {
     return (
       <div className="h-screen w-full flex items-center justify-center">
@@ -48,10 +64,11 @@ const AppLayout: React.FC = () => {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 overflow-auto">
-          <main className="container mx-auto py-6 px-4">
+          <main className="container mx-auto py-6 px-4 pb-20 md:pb-6">
             <Outlet />
           </main>
         </div>
+        <MobileNavigation />
       </div>
     </SidebarProvider>
   );

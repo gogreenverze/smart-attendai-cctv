@@ -24,6 +24,9 @@ interface ThemeProviderProps {
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   // Get initial theme from localStorage or default to system preference
   const [theme, setTheme] = useState<Theme>(() => {
+    // Check if running in browser environment
+    if (typeof window === 'undefined') return 'light';
+    
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (savedTheme) return savedTheme;
     
@@ -38,6 +41,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     // Update localStorage when theme changes
     localStorage.setItem('theme', theme);
     
@@ -55,6 +60,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   // Listen for system preference changes
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
     const handleChange = () => {
