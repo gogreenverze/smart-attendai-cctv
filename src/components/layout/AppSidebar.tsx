@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { 
   Sidebar, 
   SidebarContent, 
@@ -25,12 +26,16 @@ import {
   Search, 
   Settings, 
   User,
-  LogOut
+  LogOut,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Toggle } from '@/components/ui/toggle';
 
 const AppSidebar: React.FC = () => {
   const { user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -56,6 +61,10 @@ const AppSidebar: React.FC = () => {
 
   const isActive = (path: string) => {
     return currentPath === path;
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   return (
@@ -97,15 +106,25 @@ const AppSidebar: React.FC = () => {
 
       <SidebarFooter className="p-4 border-t border-white/10">
         <div className="flex flex-col space-y-4">
-          <div className="flex items-center space-x-3">
-            <Avatar>
-              <AvatarImage src={user?.avatar} />
-              <AvatarFallback className="bg-white/10">{user?.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="font-medium">{user?.name}</p>
-              <p className="text-xs opacity-80 capitalize">{user?.role.replace('_', ' ')}</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Avatar>
+                <AvatarImage src={user?.avatar} />
+                <AvatarFallback className="bg-white/10">{user?.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-medium">{user?.name}</p>
+                <p className="text-xs opacity-80 capitalize">{user?.role.replace('_', ' ')}</p>
+              </div>
             </div>
+            <Toggle 
+              pressed={theme === 'dark'} 
+              onPressedChange={toggleTheme}
+              className="hover:bg-white/10 text-white"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+            </Toggle>
           </div>
           <div>
             <SidebarMenu>

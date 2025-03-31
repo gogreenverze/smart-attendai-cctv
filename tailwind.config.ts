@@ -67,7 +67,8 @@ export default {
 					primary: '#1a56db',
 					secondary: '#5e9ae2',
 					accent: '#ff7e1d',
-					light: '#e5f0ff'
+					light: '#e5f0ff',
+					dark: '#0f2d69'
 				}
 			},
 			borderRadius: {
@@ -116,6 +117,9 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'pulse-slow': 'pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
 				'fade-in': 'fade-in 0.5s ease-out forwards'
+			},
+			screens: {
+				'xs': '480px',
 			}
 		}
 	},

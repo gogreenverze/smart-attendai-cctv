@@ -7,6 +7,10 @@
     <title>Banadurai School Attendance System</title>
     <meta name="description" content="Comprehensive School Attendance Management System with CCTV Integration" />
     <meta name="author" content="Banadurai Higher Secondary School" />
+    <meta name="theme-color" content="#1a56db" />
+
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
 
     <meta property="og:title" content="Banadurai School Attendance System" />
     <meta property="og:description" content="School Attendance Management System with CCTV Integration" />
@@ -23,5 +27,20 @@
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(error => {
+              console.log('ServiceWorker registration failed: ', error);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

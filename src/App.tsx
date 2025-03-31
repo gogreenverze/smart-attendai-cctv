@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 // Layout
 import AppLayout from "@/components/layout/AppLayout";
@@ -18,34 +19,42 @@ import CCTVMonitoring from "@/pages/CCTVMonitoring";
 import AISearch from "@/pages/AISearch";
 import Reports from "@/pages/Reports";
 import NotFound from "@/pages/NotFound";
+import Users from "@/pages/Users";
+import Settings from "@/pages/Settings";
+import Index from "@/pages/Index";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            
-            <Route path="/" element={<AppLayout />}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="classes" element={<Classes />} />
-              <Route path="attendance" element={<Attendance />} />
-              <Route path="cctv" element={<CCTVMonitoring />} />
-              <Route path="search" element={<AISearch />} />
-              <Route path="reports" element={<Reports />} />
-            </Route>
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/index" element={<Index />} />
+              
+              <Route path="/" element={<AppLayout />}>
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="classes" element={<Classes />} />
+                <Route path="attendance" element={<Attendance />} />
+                <Route path="cctv" element={<CCTVMonitoring />} />
+                <Route path="search" element={<AISearch />} />
+                <Route path="reports" element={<Reports />} />
+                <Route path="users" element={<Users />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
+              
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

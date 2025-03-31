@@ -64,7 +64,7 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 24 100% 56%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -92,6 +92,11 @@
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
+  }
+
+  html {
+    @apply scroll-smooth antialiased;
   }
 }
 
@@ -101,7 +106,7 @@
   }
   
   .btn-primary {
-    @apply bg-school-primary text-white hover:bg-school-primary/90;
+    @apply bg-school-primary text-white hover:bg-school-primary/90 dark:bg-primary dark:hover:bg-primary/90;
   }
   
   .btn-secondary {
@@ -110,5 +115,74 @@
   
   .btn-accent {
     @apply bg-school-accent text-white hover:bg-school-accent/90;
+  }
+
+  /* Mobile first utility classes */
+  .mobile-container {
+    @apply px-4 py-2 sm:px-6 sm:py-4;
+  }
+
+  .mobile-section {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  .glass-card {
+    @apply bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border border-white/20 dark:border-slate-700/30 rounded-xl shadow-md;
+  }
+}
+
+/* Mobile-specific styles */
+@media (max-width: 640px) {
+  .sidebar-open .main-content {
+    display: none;
+  }
+}
+
+/* For desktop, make sure everything has good padding */
+@media (min-width: 1024px) {
+  .container {
+    @apply px-6;
+  }
+}
+
+/* Utility for form inputs to be more mobile-friendly */
+input[type="date"],
+input[type="datetime-local"],
+input[type="email"],
+input[type="month"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="text"],
+input[type="time"],
+input[type="url"],
+input[type="week"],
+select,
+textarea {
+  @apply text-base sm:text-sm;
+  font-size: 16px; /* Prevents zoom on mobile */
+}
+
+/* Remove iOS styling from inputs */
+input,
+textarea {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* PWA specific styles */
+@media (display-mode: standalone) {
+  body {
+    /* Add safe area insets for standalone mode */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
   }
 }
