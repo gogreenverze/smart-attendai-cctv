@@ -32,6 +32,7 @@ const MobileNavigation: React.FC = () => {
       { title: "Reports", path: "/reports", icon: BarChart, roles: ['admin', 'teacher', 'parent'] },
       { title: "Search", path: "/search", icon: Search, roles: ['admin', 'cctv_operator'] },
       { title: "Profile", path: "/profile", icon: User, roles: ['admin', 'teacher', 'student', 'parent', 'cctv_operator'] },
+      { title: "Teachers", path: "/teacher-dashboard", icon: BookOpen, roles: ['teacher'] },
     ];
 
     return allItems.filter(item => 

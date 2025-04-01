@@ -1,4 +1,3 @@
-
 import { initializeDatabase, getDbConnection, closeDatabase } from './connection';
 import * as UserModel from './models/user';
 import * as AttendanceModel from './models/attendance';
@@ -69,7 +68,30 @@ export const DatabaseService = {
       localStorage.setItem('school_attendance_mock_data', JSON.stringify(mockData));
       return initialLength - mockData.users.length;
     },
-    getWithRoles: async () => mockData.users.map((user: any) => ({ ...user, role_name: 'Mock Role' }))
+    getWithRoles: async () => {
+      // Fix: Map real role names based on role_id instead of using "Mock Role"
+      return mockData.users.map((user: any) => {
+        let role_name = "unknown";
+        switch (user.role_id) {
+          case 1:
+            role_name = "admin";
+            break;
+          case 2:
+            role_name = "teacher";
+            break;
+          case 3:
+            role_name = "student";
+            break;
+          case 4:
+            role_name = "parent";
+            break;
+          case 5:
+            role_name = "cctv_operator";
+            break;
+        }
+        return { ...user, role_name };
+      });
+    }
   },
   
   // Attendance related functions
@@ -347,7 +369,54 @@ export const DatabaseService = {
       mockData.homework = mockData.homework.filter((h: any) => h.homework_id !== id);
       localStorage.setItem('school_attendance_mock_data', JSON.stringify(mockData));
       return initialLength - mockData.homework.length;
-    }
+    },
+    
+    // New function for enrolling students
+    enrollStudent: async (data: { class_id: number, section_id: number, student_id: number }) => {
+      const { class_id, section_id, student_id } = data;
+      const studentIndex = mockData.students.findIndex((s: any) => s.student_id === student_id);
+      
+      if (studentIndex === -1) return 0;
+      
+      mockData.students[studentIndex] = {
+        ...mockData.students[studentIndex],
+        class_id,
+        section_id,
+        updated_at: new Date()
+      };
+      
+      localStorage.setItem('school_attendance_mock_data', JSON.stringify(mockData));
+      return 1;
+    },
+    
+    // New function to create a student with user
+    createStudentWithUser: async (studentData: any) => {
+      // First create user
+      const userId = await DatabaseService.users.create({
+        username: studentData.username,
+        password_hash: 'default_password',
+        email: studentData.email,
+        role_id: 3, // Student role
+        first_name: studentData.first_name,
+        last_name: studentData.last_name,
+        is_active: true
+      });
+      
+      // Then create student record
+      const newId = mockData.students.length > 0 ? Math.max(...mockData.students.map((s: any) => s.student_id)) + 1 : 1;
+      const newStudent = { 
+        student_id: newId, 
+        user_id: userId[0], 
+        roll_number: studentData.roll_number,
+        class_id: studentData.class_id,
+        section_id: studentData.section_id,
+        created_at: new Date(), 
+        updated_at: new Date() 
+      };
+      mockData.students.push(newStudent);
+      localStorage.setItem('school_attendance_mock_data', JSON.stringify(mockData));
+      return [newId];
+    },
   },
   
   // Subject related functions
