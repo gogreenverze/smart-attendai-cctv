@@ -11,7 +11,8 @@ import {
   BookOpen,
   Camera,
   BarChart,
-  Search
+  Search,
+  Book
 } from 'lucide-react';
 
 const MobileNavigation: React.FC = () => {
@@ -24,7 +25,8 @@ const MobileNavigation: React.FC = () => {
     const allItems = [
       { title: "Dashboard", path: "/dashboard", icon: Home, roles: ['admin', 'teacher', 'student', 'parent', 'cctv_operator'] },
       { title: "Users", path: "/users", icon: Users, roles: ['admin'] },
-      { title: "Classes", path: "/classes", icon: BookOpen, roles: ['admin', 'teacher'] },
+      { title: "Classes", path: "/classes", icon: BookOpen, roles: ['admin', 'teacher', 'student', 'parent'] },
+      { title: "Homework", path: "/homework", icon: Book, roles: ['admin', 'teacher', 'student', 'parent'] },
       { title: "Attendance", path: "/attendance", icon: Calendar, roles: ['admin', 'teacher', 'student', 'parent'] },
       { title: "CCTV", path: "/cctv", icon: Camera, roles: ['admin', 'cctv_operator'] },
       { title: "Reports", path: "/reports", icon: BarChart, roles: ['admin', 'teacher', 'parent'] },
@@ -44,7 +46,7 @@ const MobileNavigation: React.FC = () => {
   };
 
   return (
-    <div className="mobile-nav md:hidden">
+    <div className="mobile-nav md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-10">
       <div className="grid grid-cols-5 h-16">
         {menuItems.map((item) => (
           <Link 

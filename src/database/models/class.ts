@@ -5,6 +5,7 @@ export interface Class {
   class_id?: number;
   class_name: string;
   academic_year: string;
+  board_type?: string;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -27,10 +28,24 @@ export interface Student {
   updated_at?: Date;
 }
 
+export interface Homework {
+  homework_id?: number;
+  class_id: number;
+  section_id: number;
+  subject_id: number;
+  teacher_id: number;
+  title: string;
+  description: string;
+  due_date: Date;
+  is_active: boolean;
+  created_at?: Date;
+  updated_at?: Date;
+}
+
 // Class related functions
 export async function getAllClasses(): Promise<Class[]> {
   const db = getDbConnection();
-  return db('classes').select('*');
+  return db('classes').select('*').orderBy('class_name');
 }
 
 export async function getClassById(classId: number): Promise<Class | undefined> {
@@ -141,4 +156,61 @@ export async function getClassWithStats(): Promise<any[]> {
     ORDER BY 
       c.class_name
   `, [today]);
+}
+
+// Homework related functions
+export async function createHomework(homework: Homework): Promise<number[]> {
+  const db = getDbConnection();
+  return db('homework').insert(homework);
+}
+
+export async function getHomeworkByClass(classId: number, sectionId?: number): Promise<any[]> {
+  const db = getDbConnection();
+  let query = db('homework')
+    .join('subjects', 'homework.subject_id', '=', 'subjects.subject_id')
+    .join('teachers', 'homework.teacher_id', '=', 'teachers.teacher_id')
+    .join('users', 'teachers.user_id', '=', 'users.user_id')
+    .where('homework.class_id', classId)
+    .select(
+      'homework.*',
+      'subjects.subject_name',
+      'users.first_name',
+      'users.last_name'
+    );
+
+  if (sectionId) {
+    query = query.where('homework.section_id', sectionId);
+  }
+
+  return query.orderBy('homework.due_date', 'desc');
+}
+
+export async function getHomeworkById(homeworkId: number): Promise<any | undefined> {
+  const db = getDbConnection();
+  return db('homework')
+    .join('subjects', 'homework.subject_id', '=', 'subjects.subject_id')
+    .join('teachers', 'homework.teacher_id', '=', 'teachers.teacher_id')
+    .join('users', 'teachers.user_id', '=', 'users.user_id')
+    .join('classes', 'homework.class_id', '=', 'classes.class_id')
+    .join('sections', 'homework.section_id', '=', 'sections.section_id')
+    .where('homework.homework_id', homeworkId)
+    .select(
+      'homework.*',
+      'subjects.subject_name',
+      'users.first_name',
+      'users.last_name',
+      'classes.class_name',
+      'sections.section_name'
+    )
+    .first();
+}
+
+export async function updateHomework(homeworkId: number, homeworkData: Partial<Homework>): Promise<number> {
+  const db = getDbConnection();
+  return db('homework').where('homework_id', homeworkId).update(homeworkData);
+}
+
+export async function deleteHomework(homeworkId: number): Promise<number> {
+  const db = getDbConnection();
+  return db('homework').where('homework_id', homeworkId).delete();
 }

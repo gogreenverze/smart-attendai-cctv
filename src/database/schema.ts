@@ -36,6 +36,7 @@ export async function createTables(knex: Knex): Promise<void> {
       table.increments('class_id').primary();
       table.string('class_name').notNullable().unique();
       table.string('academic_year').notNullable();
+      table.string('board_type').defaultTo('TN State Board');
       table.timestamps(true, true);
     });
 
@@ -113,6 +114,24 @@ export async function createTables(knex: Knex): Promise<void> {
       table.foreign('parent_id').references('parents.parent_id');
       table.foreign('student_id').references('students.student_id');
       table.unique(['parent_id', 'student_id']);
+      table.timestamps(true, true);
+    });
+
+    // Homework table - NEW
+    await knex.schema.createTable('homework', (table) => {
+      table.increments('homework_id').primary();
+      table.integer('class_id').unsigned().notNullable();
+      table.foreign('class_id').references('classes.class_id');
+      table.integer('section_id').unsigned().notNullable();
+      table.foreign('section_id').references('sections.section_id');
+      table.integer('subject_id').unsigned().notNullable();
+      table.foreign('subject_id').references('subjects.subject_id');
+      table.integer('teacher_id').unsigned().notNullable();
+      table.foreign('teacher_id').references('teachers.teacher_id');
+      table.string('title').notNullable();
+      table.text('description').notNullable();
+      table.date('due_date').notNullable();
+      table.boolean('is_active').defaultTo(true);
       table.timestamps(true, true);
     });
 
@@ -197,7 +216,8 @@ export async function seedInitialData(knex: Knex): Promise<void> {
           classes: ['create', 'read', 'update', 'delete'],
           attendance: ['create', 'read', 'update', 'delete'],
           cctv: ['read', 'search'],
-          reports: ['create', 'read']
+          reports: ['create', 'read'],
+          homework: ['create', 'read', 'update', 'delete']
         })
       },
       { 
@@ -205,9 +225,11 @@ export async function seedInitialData(knex: Knex): Promise<void> {
         permissions: JSON.stringify({
           users: ['read'],
           classes: ['read'],
+          students: ['create', 'read', 'update', 'delete'],
           attendance: ['create', 'read', 'update'],
           cctv: ['read'],
-          reports: ['create', 'read']
+          reports: ['create', 'read'],
+          homework: ['create', 'read', 'update', 'delete']
         })
       },
       { 
@@ -215,7 +237,8 @@ export async function seedInitialData(knex: Knex): Promise<void> {
         permissions: JSON.stringify({
           users: ['read'],
           attendance: ['read'],
-          reports: ['read']
+          reports: ['read'],
+          homework: ['read']
         })
       },
       { 
@@ -223,7 +246,8 @@ export async function seedInitialData(knex: Knex): Promise<void> {
         permissions: JSON.stringify({
           users: ['read'],
           attendance: ['read'],
-          reports: ['read']
+          reports: ['read'],
+          homework: ['read']
         })
       },
       { 
