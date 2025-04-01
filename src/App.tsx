@@ -25,41 +25,44 @@ import Index from "@/pages/Index";
 import Homework from "@/pages/Homework";
 import TeacherDashboard from "@/pages/TeacherDashboard";
 
+// Create a new QueryClient instance
 const queryClient = new QueryClient();
 
-const App = () => (
-  <BrowserRouter>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/index" element={<Index />} />
-              
-              <Route path="/" element={<AppLayout />}>
-                <Route index element={<Navigate to="/dashboard" replace />} />
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="classes" element={<Classes />} />
-                <Route path="attendance" element={<Attendance />} />
-                <Route path="cctv" element={<CCTVMonitoring />} />
-                <Route path="search" element={<AISearch />} />
-                <Route path="reports" element={<Reports />} />
-                <Route path="users" element={<Users />} />
-                <Route path="settings" element={<Settings />} />
-                <Route path="homework" element={<Homework />} />
-                <Route path="teacher-dashboard" element={<TeacherDashboard />} />
-              </Route>
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </TooltipProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
-  </BrowserRouter>
-);
+const App = () => {
+  return (
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/index" element={<Index />} />
+                
+                <Route path="/" element={<AppLayout />}>
+                  <Route index element={<Navigate to="/dashboard" replace />} />
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="classes" element={<Classes />} />
+                  <Route path="attendance" element={<Attendance />} />
+                  <Route path="cctv" element={<CCTVMonitoring />} />
+                  <Route path="search" element={<AISearch />} />
+                  <Route path="reports" element={<Reports />} />
+                  <Route path="users" element={<Users />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route path="homework" element={<Homework />} />
+                  <Route path="teacher-dashboard" element={<TeacherDashboard />} />
+                </Route>
+                
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </TooltipProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
+  );
+};
 
 export default App;

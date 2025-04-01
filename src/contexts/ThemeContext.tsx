@@ -21,18 +21,15 @@ interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
-export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  // Get initial theme from localStorage or default to system preference
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    // Check if running in browser environment
-    if (typeof window === 'undefined') return 'light';
-    
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme) return savedTheme;
-    
-    // Check system preference
-    const systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    return systemPreference;
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme') as Theme;
+      if (savedTheme) return savedTheme;
+      
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light';
   });
 
   // Toggle theme function
@@ -71,15 +68,9 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
       }
     };
     
-    // Use the correct event listener method based on browser support
-    if (typeof mediaQuery.addEventListener === 'function') {
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    } else {
-      // Fallback for older browsers that don't support addEventListener
-      mediaQuery.addListener(handleChange);
-      return () => mediaQuery.removeListener(handleChange);
-    }
+    // Modern way to add event listeners
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   return (
