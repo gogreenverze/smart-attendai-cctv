@@ -22,17 +22,19 @@ import NotFound from "@/pages/NotFound";
 import Users from "@/pages/Users";
 import Settings from "@/pages/Settings";
 import Index from "@/pages/Index";
+import Homework from "@/pages/Homework";
+import TeacherDashboard from "@/pages/TeacherDashboard";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <TooltipProvider>
+  <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
         <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/index" element={<Index />} />
@@ -47,15 +49,17 @@ const App = () => (
                 <Route path="reports" element={<Reports />} />
                 <Route path="users" element={<Users />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="homework" element={<Homework />} />
+                <Route path="teacher-dashboard" element={<TeacherDashboard />} />
               </Route>
               
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
+          </TooltipProvider>
         </AuthProvider>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </BrowserRouter>
 );
 
 export default App;

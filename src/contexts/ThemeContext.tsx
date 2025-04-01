@@ -21,7 +21,7 @@ interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   // Get initial theme from localStorage or default to system preference
   const [theme, setTheme] = useState<Theme>(() => {
     // Check if running in browser environment
