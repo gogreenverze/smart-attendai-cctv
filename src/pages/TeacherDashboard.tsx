@@ -152,6 +152,24 @@ const TeacherDashboard = () => {
       setLoadingStudents(false);
     }
   };
+
+  // Student form class change handler
+  const onStudentClassChange = (value: string) => {
+    studentForm.setValue("class_id", value);
+    studentForm.setValue("section_id", "");
+    
+    // Fetch sections for this class
+    const fetchSections = async () => {
+      try {
+        const fetchedSections = await DatabaseService.classes.getSectionsByClass(Number(value));
+        setSections(fetchedSections);
+      } catch (error) {
+        console.error("Failed to fetch sections:", error);
+      }
+    };
+    
+    fetchSections();
+  };
   
   const onStudentSubmit = async (data: z.infer<typeof studentSchema>) => {
     try {
@@ -190,7 +208,7 @@ const TeacherDashboard = () => {
         class_id: Number(data.class_id),
         section_id: Number(data.section_id),
         subject_id: Number(data.subject_id),
-        teacher_id: 1, // For demo purposes, hardcoded
+        teacher_id: user?.user_id || 1, // Use actual teacher ID
         is_active: true,
       });
       
@@ -262,6 +280,9 @@ const TeacherDashboard = () => {
           <h1 className="text-2xl font-bold tracking-tight">Teacher Dashboard</h1>
           <p className="text-muted-foreground">Manage students and assignments</p>
         </div>
+        <Button asChild variant="outline">
+          <a href="/homework">View Homework Page</a>
+        </Button>
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -454,7 +475,7 @@ const TeacherDashboard = () => {
                         <FormItem>
                           <FormLabel>Class</FormLabel>
                           <Select 
-                            onValueChange={field.onChange} 
+                            onValueChange={onStudentClassChange} 
                             value={field.value}
                           >
                             <FormControl>
@@ -684,6 +705,7 @@ const TeacherDashboard = () => {
                                 date < new Date(new Date().setHours(0, 0, 0, 0))
                               }
                               initialFocus
+                              className="pointer-events-auto"
                             />
                           </PopoverContent>
                         </Popover>
