@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -208,7 +207,7 @@ const TeacherDashboard = () => {
         class_id: Number(data.class_id),
         section_id: Number(data.section_id),
         subject_id: Number(data.subject_id),
-        teacher_id: user?.user_id || 1, // Use actual teacher ID
+        teacher_id: user?.id ? Number(user.id) : 1,
         is_active: true,
       });
       
