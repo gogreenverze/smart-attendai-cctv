@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { DatabaseService } from '@/database/service';
@@ -25,14 +24,10 @@ const Homework = () => {
     const fetchInitialData = async () => {
       try {
         setLoading(true);
-        // Fetch classes
         const fetchedClasses = await DatabaseService.classes.getAllClasses();
         setClasses(fetchedClasses);
         
-        // If user is a student, automatically select their class
         if (user?.role === 'student') {
-          // This would require getting the student's class from their profile
-          // For now, just select the first class as a demo
           if (fetchedClasses.length > 0) {
             setSelectedClass(fetchedClasses[0].class_id.toString());
           }
@@ -49,16 +44,12 @@ const Homework = () => {
   
   useEffect(() => {
     if (selectedClass) {
-      // Fetch sections for selected class
       const fetchSections = async () => {
         try {
           const fetchedSections = await DatabaseService.classes.getSectionsByClass(Number(selectedClass));
           setSections(fetchedSections);
           
-          // If user is a student, automatically select their section
           if (user?.role === 'student' && fetchedSections.length > 0) {
-            // This would require getting the student's section from their profile
-            // For now, just select the first section as a demo
             setSelectedSection(fetchedSections[0].section_id.toString());
           }
         } catch (error) {
@@ -107,14 +98,13 @@ const Homework = () => {
       if (daysUntilDue <= 1) {
         return <Badge variant="destructive">Due Today</Badge>;
       } else if (daysUntilDue <= 3) {
-        return <Badge variant="warning" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">Due Soon</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">Due Soon</Badge>;
       } else {
         return <Badge variant="outline">Upcoming</Badge>;
       }
     }
   };
   
-  // Display appropriate content based on user role
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -126,7 +116,6 @@ const Homework = () => {
     );
   }
 
-  // For teachers, redirect to the teacher dashboard
   if (user?.role === 'teacher') {
     return (
       <div className="space-y-6">
@@ -170,7 +159,7 @@ const Homework = () => {
               <Select 
                 value={selectedClass} 
                 onValueChange={setSelectedClass}
-                disabled={user?.role === 'student'} // Students can't change their class
+                disabled={user?.role === 'student'}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select Class" />
@@ -189,7 +178,7 @@ const Homework = () => {
               <Select 
                 value={selectedSection} 
                 onValueChange={setSelectedSection}
-                disabled={!selectedClass || sections.length === 0 || user?.role === 'student'} // Students can't change their section
+                disabled={!selectedClass || sections.length === 0 || user?.role === 'student'}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select Section" />
