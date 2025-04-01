@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -90,6 +91,11 @@ const TeacherDashboard = () => {
         // Fetch subjects
         const fetchedSubjects = await DatabaseService.subjects.getAll();
         setSubjects(fetchedSubjects);
+        
+        // Set initial values for class and section if available
+        if (fetchedClasses.length > 0) {
+          setSelectedClass(fetchedClasses[0].class_id.toString());
+        }
       } catch (error) {
         console.error("Failed to fetch initial data:", error);
         toast({
@@ -112,6 +118,11 @@ const TeacherDashboard = () => {
         try {
           const fetchedSections = await DatabaseService.classes.getSectionsByClass(Number(selectedClass));
           setSections(fetchedSections);
+          
+          // Set initial section if available
+          if (fetchedSections.length > 0) {
+            setSelectedSection(fetchedSections[0].section_id.toString());
+          }
         } catch (error) {
           console.error("Failed to fetch sections:", error);
         }
@@ -162,6 +173,11 @@ const TeacherDashboard = () => {
       try {
         const fetchedSections = await DatabaseService.classes.getSectionsByClass(Number(value));
         setSections(fetchedSections);
+        
+        // Set first section as default if available
+        if (fetchedSections.length > 0) {
+          studentForm.setValue("section_id", fetchedSections[0].section_id.toString());
+        }
       } catch (error) {
         console.error("Failed to fetch sections:", error);
       }
@@ -238,6 +254,11 @@ const TeacherDashboard = () => {
       try {
         const fetchedSections = await DatabaseService.classes.getSectionsByClass(Number(value));
         setSections(fetchedSections);
+        
+        // Set first section as default if available
+        if (fetchedSections.length > 0) {
+          homeworkForm.setValue("section_id", fetchedSections[0].section_id.toString());
+        }
       } catch (error) {
         console.error("Failed to fetch sections:", error);
       }

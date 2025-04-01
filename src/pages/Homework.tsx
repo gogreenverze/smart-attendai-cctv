@@ -28,10 +28,10 @@ const Homework = () => {
         const fetchedClasses = await DatabaseService.classes.getAllClasses();
         setClasses(fetchedClasses);
         
-        if (user?.role === 'student') {
-          if (fetchedClasses.length > 0) {
-            setSelectedClass(fetchedClasses[0].class_id.toString());
-          }
+        if (user?.role === 'student' && fetchedClasses.length > 0) {
+          // For students, we'll set their class and section
+          // In a real app, this would come from the student's profile
+          setSelectedClass(fetchedClasses[0].class_id.toString());
         }
       } catch (error) {
         console.error("Failed to fetch classes:", error);
@@ -50,7 +50,7 @@ const Homework = () => {
           const fetchedSections = await DatabaseService.classes.getSectionsByClass(Number(selectedClass));
           setSections(fetchedSections);
           
-          if (user?.role === 'student' && fetchedSections.length > 0) {
+          if (fetchedSections.length > 0) {
             setSelectedSection(fetchedSections[0].section_id.toString());
           }
         } catch (error) {
@@ -62,7 +62,7 @@ const Homework = () => {
     } else {
       setSections([]);
     }
-  }, [selectedClass, user]);
+  }, [selectedClass]);
   
   useEffect(() => {
     if (selectedClass && selectedSection) {
@@ -80,6 +80,7 @@ const Homework = () => {
         Number(selectedSection)
       );
       setHomework(fetchedHomework);
+      console.log("Fetched homework:", fetchedHomework);
     } catch (error) {
       console.error("Failed to fetch homework:", error);
     } finally {
@@ -99,7 +100,7 @@ const Homework = () => {
       if (daysUntilDue <= 1) {
         return <Badge variant="destructive">Due Today</Badge>;
       } else if (daysUntilDue <= 3) {
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">Due Soon</Badge>;
+        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">Due Soon</Badge>;
       } else {
         return <Badge variant="outline">Upcoming</Badge>;
       }
