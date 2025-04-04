@@ -40,7 +40,10 @@ const MobileNavigation: React.FC = () => {
       // Move homework to be the second item for students (after Dashboard)
       const homeworkItem = allItems.find(item => item.title === 'Homework');
       if (homeworkItem) {
-        const filteredItems = allItems.filter(item => item.title !== 'Homework' && item.roles.includes(user.role as any));
+        const filteredItems = allItems.filter(item => 
+          item.title !== 'Homework' && 
+          item.roles.includes(user.role as any)
+        );
         filteredItems.splice(1, 0, homeworkItem);
         return filteredItems.slice(0, 5); // Limit to 5 items for mobile nav
       }

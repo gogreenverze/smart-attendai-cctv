@@ -33,10 +33,29 @@ const Homework = () => {
           setSubjects(fetchedSubjects);
         }
         
-        if (user?.role === 'student' && fetchedClasses.length > 0) {
-          // For students, we'll set their class and section
-          // In a real app, this would come from the student's profile
-          setSelectedClass(fetchedClasses[0].class_id.toString());
+        if (user?.role === 'student') {
+          // For students, get their saved class and section
+          const savedClass = localStorage.getItem(`student_${user.id}_class`);
+          const savedSection = localStorage.getItem(`student_${user.id}_section`);
+          
+          if (savedClass) {
+            setSelectedClass(savedClass);
+            
+            // Fetch sections for this class
+            const fetchedSections = await DatabaseService.classes.getSectionsByClass(Number(savedClass));
+            setSections(fetchedSections);
+            
+            if (savedSection) {
+              setSelectedSection(savedSection);
+            } else if (fetchedSections.length > 0) {
+              setSelectedSection(fetchedSections[0].section_id.toString());
+              localStorage.setItem(`student_${user.id}_section`, fetchedSections[0].section_id.toString());
+            }
+          } else if (fetchedClasses.length > 0) {
+            // If no saved class, default to first class
+            setSelectedClass(fetchedClasses[0].class_id.toString());
+            localStorage.setItem(`student_${user.id}_class`, fetchedClasses[0].class_id.toString());
+          }
         }
       } catch (error) {
         console.error("Failed to fetch classes:", error);
@@ -49,7 +68,7 @@ const Homework = () => {
   }, [user]);
   
   useEffect(() => {
-    if (selectedClass) {
+    if (selectedClass && user?.role !== 'student') {
       const fetchSections = async () => {
         try {
           const fetchedSections = await DatabaseService.classes.getSectionsByClass(Number(selectedClass));
@@ -64,10 +83,8 @@ const Homework = () => {
       };
       
       fetchSections();
-    } else {
-      setSections([]);
     }
-  }, [selectedClass]);
+  }, [selectedClass, user?.role]);
   
   useEffect(() => {
     if (selectedClass && selectedSection) {
@@ -104,6 +121,20 @@ const Homework = () => {
       console.error("Failed to fetch homework:", error);
     } finally {
       setLoadingHomework(false);
+    }
+  };
+
+  const handleClassChange = (value: string) => {
+    setSelectedClass(value);
+    if (user?.role === 'student') {
+      localStorage.setItem(`student_${user.id}_class`, value);
+    }
+  };
+
+  const handleSectionChange = (value: string) => {
+    setSelectedSection(value);
+    if (user?.role === 'student') {
+      localStorage.setItem(`student_${user.id}_section`, value);
     }
   };
   
@@ -148,8 +179,8 @@ const Homework = () => {
           loadingHomework={loadingHomework}
           selectedClass={selectedClass}
           selectedSection={selectedSection}
-          onClassChange={setSelectedClass}
-          onSectionChange={setSelectedSection}
+          onClassChange={handleClassChange}
+          onSectionChange={handleSectionChange}
           refreshHomework={fetchHomework}
         />
       ) : (
@@ -162,8 +193,8 @@ const Homework = () => {
           loadingHomework={loadingHomework}
           selectedClass={selectedClass}
           selectedSection={selectedSection}
-          onClassChange={setSelectedClass}
-          onSectionChange={setSelectedSection}
+          onClassChange={handleClassChange}
+          onSectionChange={handleSectionChange}
           refreshHomework={fetchHomework}
         />
       )}

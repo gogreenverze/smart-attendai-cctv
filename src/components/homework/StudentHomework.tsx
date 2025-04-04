@@ -50,11 +50,19 @@ const StudentHomework: React.FC<StudentHomeworkProps> = ({
     setIsDialogOpen(false);
   };
 
+  // Get class and section names for display
+  const currentClass = classes.find(c => c.class_id.toString() === selectedClass);
+  const currentSection = sections.find(s => s.section_id.toString() === selectedSection);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Homework Assignments</CardTitle>
-        <CardDescription>View assigned homework and update your progress</CardDescription>
+        <CardDescription>
+          {currentClass && currentSection ? 
+            `Viewing homework for ${currentClass.class_name} - ${currentSection.section_name}` : 
+            "View assigned homework and update your progress"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -63,7 +71,6 @@ const StudentHomework: React.FC<StudentHomeworkProps> = ({
             <Select 
               value={selectedClass} 
               onValueChange={onClassChange}
-              disabled={user?.role === 'student'}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select Class" />
@@ -82,7 +89,7 @@ const StudentHomework: React.FC<StudentHomeworkProps> = ({
             <Select 
               value={selectedSection} 
               onValueChange={onSectionChange}
-              disabled={!selectedClass || sections.length === 0 || user?.role === 'student'}
+              disabled={!selectedClass || sections.length === 0}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select Section" />
