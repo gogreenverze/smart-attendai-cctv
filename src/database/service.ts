@@ -1,3 +1,4 @@
+
 import { initializeDatabase, getDbConnection, closeDatabase } from './connection';
 import * as UserModel from './models/user';
 import * as AttendanceModel from './models/attendance';
@@ -15,6 +16,7 @@ const mockData = {
   sections: [],
   students: [],
   homework: [],
+  homework_status: [],
   subjects: []
 };
 
@@ -314,7 +316,7 @@ export const DatabaseService = {
         late_count: Math.floor(Math.random() * 3)
       }));
     },
-    // New functions for homework
+    // Homework related functions
     createHomework: async (homework: any) => {
       const newId = mockData.homework.length > 0 ? Math.max(...mockData.homework.map((h: any) => h.homework_id)) + 1 : 1;
       const newHomework = { ...homework, homework_id: newId, created_at: new Date(), updated_at: new Date() };
@@ -336,6 +338,90 @@ export const DatabaseService = {
           last_name: 'Name'
         };
       });
+    },
+    getHomeworkForStudent: async (studentId: string, classId: number, sectionId: number) => {
+      let homework = mockData.homework.filter((h: any) => 
+        h.class_id === classId && h.section_id === sectionId
+      );
+      
+      return homework.map((h: any) => {
+        const subject = mockData.subjects.find((s: any) => s.subject_id === h.subject_id) || { subject_name: 'Unknown' };
+        const status = mockData.homework_status.find((s: any) => 
+          s.homework_id === h.homework_id && s.student_id === studentId
+        );
+        
+        return {
+          ...h,
+          subject_name: subject.subject_name,
+          first_name: 'Teacher',
+          last_name: 'Name',
+          status: status?.status || 'pending',
+          comments: status?.comments || '',
+          submission_date: status?.submission_date || null,
+          updated_at: status?.updated_at || h.updated_at
+        };
+      });
+    },
+    getHomeworkHistory: async (studentId: string) => {
+      const statuses = mockData.homework_status.filter((s: any) => 
+        s.student_id === studentId && s.status === 'completed'
+      );
+      
+      return statuses.map((status: any) => {
+        const homework = mockData.homework.find((h: any) => h.homework_id === status.homework_id);
+        if (!homework) return null;
+        
+        const subject = mockData.subjects.find((s: any) => s.subject_id === homework.subject_id) || { subject_name: 'Unknown' };
+        
+        return {
+          ...homework,
+          subject_name: subject.subject_name,
+          first_name: 'Teacher',
+          last_name: 'Name',
+          status: status.status,
+          comments: status.comments || '',
+          submission_date: status.submission_date,
+          updated_at: status.updated_at
+        };
+      }).filter(Boolean);
+    },
+    updateHomeworkStatus: async (statusData: any) => {
+      const existing = mockData.homework_status.findIndex((s: any) => 
+        s.homework_id === statusData.homework_id && s.student_id === statusData.student_id
+      );
+      
+      const now = new Date();
+      
+      if (existing !== -1) {
+        // Update existing
+        mockData.homework_status[existing] = {
+          ...mockData.homework_status[existing],
+          status: statusData.status,
+          comments: statusData.comments,
+          updated_at: now
+        };
+        localStorage.setItem('school_attendance_mock_data', JSON.stringify(mockData));
+        return [mockData.homework_status[existing].status_id];
+      } else {
+        // Create new
+        const newId = mockData.homework_status.length > 0 
+          ? Math.max(...mockData.homework_status.map((s: any) => s.status_id)) + 1 
+          : 1;
+          
+        const newStatus = {
+          status_id: newId,
+          homework_id: statusData.homework_id,
+          student_id: statusData.student_id,
+          status: statusData.status,
+          comments: statusData.comments,
+          submission_date: now,
+          updated_at: now
+        };
+        
+        mockData.homework_status.push(newStatus);
+        localStorage.setItem('school_attendance_mock_data', JSON.stringify(mockData));
+        return [newId];
+      }
     },
     getHomeworkById: async (id: number) => {
       const homework = mockData.homework.find((h: any) => h.homework_id === id);
@@ -543,6 +629,28 @@ if (mockData.classes.length === 0) {
       is_active: true,
       created_at: new Date(),
       updated_at: new Date()
+    }
+  ];
+
+  // Add sample homework status
+  mockData.homework_status = [
+    {
+      status_id: 1,
+      homework_id: 1,
+      student_id: "3", // Student with ID 3
+      status: "accepted",
+      comments: "Working on this",
+      submission_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+      updated_at: new Date()
+    },
+    {
+      status_id: 2,
+      homework_id: 2,
+      student_id: "3", // Student with ID 3
+      status: "completed",
+      comments: "Completed my essay on Harry Potter",
+      submission_date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+      updated_at: new Date() 
     }
   ];
   

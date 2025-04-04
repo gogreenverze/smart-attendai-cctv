@@ -42,6 +42,16 @@ export interface Homework {
   updated_at?: Date;
 }
 
+export interface HomeworkStatus {
+  status_id?: number;
+  homework_id: number;
+  student_id: string;
+  status: 'pending' | 'accepted' | 'completed';
+  comments?: string | null;
+  submission_date?: Date;
+  updated_at?: Date;
+}
+
 // Class related functions
 export async function getAllClasses(): Promise<Class[]> {
   const db = getDbConnection();
@@ -185,6 +195,93 @@ export async function getHomeworkByClass(classId: number, sectionId?: number): P
   return query.orderBy('homework.due_date', 'desc');
 }
 
+export async function getHomeworkForStudent(studentId: string, classId: number, sectionId: number): Promise<any[]> {
+  const db = getDbConnection();
+  return db('homework')
+    .join('subjects', 'homework.subject_id', '=', 'subjects.subject_id')
+    .join('teachers', 'homework.teacher_id', '=', 'teachers.teacher_id')
+    .join('users', 'teachers.user_id', '=', 'users.user_id')
+    .leftJoin('homework_status', function() {
+      this.on('homework.homework_id', '=', 'homework_status.homework_id')
+        .andOn('homework_status.student_id', '=', db.raw('?', [studentId]));
+    })
+    .where('homework.class_id', classId)
+    .where('homework.section_id', sectionId)
+    .select(
+      'homework.*',
+      'subjects.subject_name',
+      'users.first_name',
+      'users.last_name',
+      'homework_status.status',
+      'homework_status.comments',
+      'homework_status.submission_date',
+      'homework_status.updated_at as status_updated_at'
+    )
+    .orderBy('homework.due_date', 'desc');
+}
+
+export async function getHomeworkHistory(studentId: string): Promise<any[]> {
+  const db = getDbConnection();
+  return db('homework_status')
+    .join('homework', 'homework_status.homework_id', '=', 'homework.homework_id')
+    .join('subjects', 'homework.subject_id', '=', 'subjects.subject_id')
+    .join('teachers', 'homework.teacher_id', '=', 'teachers.teacher_id')
+    .join('users', 'teachers.user_id', '=', 'users.user_id')
+    .where('homework_status.student_id', studentId)
+    .where('homework_status.status', 'completed')
+    .select(
+      'homework.*',
+      'subjects.subject_name',
+      'users.first_name',
+      'users.last_name',
+      'homework_status.status',
+      'homework_status.comments',
+      'homework_status.submission_date',
+      'homework_status.updated_at as status_updated_at'
+    )
+    .orderBy('homework_status.updated_at', 'desc');
+}
+
+export async function updateHomeworkStatus(statusData: HomeworkStatus): Promise<number[]> {
+  const db = getDbConnection();
+  
+  // Check if a status record already exists
+  const existing = await db('homework_status')
+    .where({
+      homework_id: statusData.homework_id,
+      student_id: statusData.student_id
+    })
+    .first();
+  
+  const now = new Date();
+  
+  if (existing) {
+    // Update existing status
+    await db('homework_status')
+      .where({
+        homework_id: statusData.homework_id,
+        student_id: statusData.student_id
+      })
+      .update({
+        status: statusData.status,
+        comments: statusData.comments,
+        updated_at: now
+      });
+    
+    return [existing.status_id];
+  } else {
+    // Insert new status
+    return db('homework_status').insert({
+      homework_id: statusData.homework_id,
+      student_id: statusData.student_id,
+      status: statusData.status,
+      comments: statusData.comments,
+      submission_date: now,
+      updated_at: now
+    });
+  }
+}
+
 export async function getHomeworkById(homeworkId: number): Promise<any | undefined> {
   const db = getDbConnection();
   return db('homework')
@@ -214,3 +311,4 @@ export async function deleteHomework(homeworkId: number): Promise<number> {
   const db = getDbConnection();
   return db('homework').where('homework_id', homeworkId).delete();
 }
+

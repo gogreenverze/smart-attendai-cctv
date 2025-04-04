@@ -35,6 +35,17 @@ const MobileNavigation: React.FC = () => {
       { title: "Teacher Dashboard", path: "/teacher-dashboard", icon: BookOpen, roles: ['teacher'] },
     ];
 
+    // Make homework link a priority for students
+    if (user?.role === 'student') {
+      // Move homework to be the second item for students (after Dashboard)
+      const homeworkItem = allItems.find(item => item.title === 'Homework');
+      if (homeworkItem) {
+        const filteredItems = allItems.filter(item => item.title !== 'Homework' && item.roles.includes(user.role as any));
+        filteredItems.splice(1, 0, homeworkItem);
+        return filteredItems.slice(0, 5); // Limit to 5 items for mobile nav
+      }
+    }
+
     return allItems.filter(item => 
       user?.role && item.roles.includes(user.role as any)
     ).slice(0, 5); // Limit to 5 items for mobile nav
