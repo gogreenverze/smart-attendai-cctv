@@ -9,26 +9,36 @@ interface ThemeContextType {
   toggleTheme: () => void;
 }
 
+// Create context with default values
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'light',
   setTheme: () => {},
   toggleTheme: () => {},
 });
 
+// Custom hook for using the theme context
 export const useTheme = () => useContext(ThemeContext);
 
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+export const ThemeProvider = ({ children }: ThemeProviderProps) => {
+  // Initialize theme state with a callback function
   const [theme, setTheme] = useState<Theme>(() => {
+    // Check if we're in the browser environment
     if (typeof window !== 'undefined') {
+      // First try to get the theme from localStorage
       const savedTheme = localStorage.getItem('theme') as Theme;
-      if (savedTheme) return savedTheme;
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        return savedTheme;
+      }
       
+      // If no theme in localStorage, use the system preference
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
+    
+    // Default to light theme if not in browser context
     return 'light';
   });
 
@@ -37,6 +47,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
   };
 
+  // Apply theme to document when it changes
   useEffect(() => {
     if (typeof window === 'undefined') return;
     

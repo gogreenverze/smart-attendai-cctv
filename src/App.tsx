@@ -35,8 +35,6 @@ const App = () => {
         <ThemeProvider>
           <AuthProvider>
             <TooltipProvider>
-              <Toaster />
-              <Sonner />
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/index" element={<Index />} />
@@ -57,6 +55,8 @@ const App = () => {
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <Toaster />
+              <Sonner />
             </TooltipProvider>
           </AuthProvider>
         </ThemeProvider>
