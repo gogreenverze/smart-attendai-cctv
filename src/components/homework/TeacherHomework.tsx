@@ -78,9 +78,11 @@ const TeacherHomework: React.FC<TeacherHomeworkProps> = ({
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="space-y-2">
-                <Label htmlFor="class-filter">Class</Label>
-                <Select value={selectedClass} onValueChange={onClassChange}>
-                  <SelectTrigger>
+                <Label htmlFor="class-filter" className="flex items-center">
+                  Class <span className="text-destructive ml-1">*</span>
+                </Label>
+                <Select value={selectedClass} onValueChange={onClassChange} required>
+                  <SelectTrigger className={!selectedClass ? "border-destructive" : ""}>
                     <SelectValue placeholder="Select Class" />
                   </SelectTrigger>
                   <SelectContent>
@@ -93,13 +95,16 @@ const TeacherHomework: React.FC<TeacherHomeworkProps> = ({
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="section-filter">Section</Label>
+                <Label htmlFor="section-filter" className="flex items-center">
+                  Section <span className="text-destructive ml-1">*</span>
+                </Label>
                 <Select 
                   value={selectedSection} 
                   onValueChange={onSectionChange}
-                  disabled={!selectedClass || sections.length === 0}
+                  disabled={!selectedClass}
+                  required
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={selectedClass && !selectedSection ? "border-destructive" : ""}>
                     <SelectValue placeholder="Select Section" />
                   </SelectTrigger>
                   <SelectContent>
@@ -110,6 +115,9 @@ const TeacherHomework: React.FC<TeacherHomeworkProps> = ({
                     ))}
                   </SelectContent>
                 </Select>
+                {sections.length === 0 && selectedClass && (
+                  <p className="text-sm text-muted-foreground">No sections available for this class</p>
+                )}
               </div>
             </div>
             
