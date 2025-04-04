@@ -28,7 +28,8 @@ import {
   User,
   LogOut,
   Moon,
-  Sun
+  Sun,
+  Book
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
@@ -46,6 +47,7 @@ const AppSidebar: React.FC = () => {
       { title: "Dashboard", path: "/dashboard", icon: Home, roles: ['admin', 'teacher', 'student', 'parent', 'cctv_operator'] },
       { title: "Users", path: "/users", icon: Users, roles: ['admin'] },
       { title: "Classes", path: "/classes", icon: BookOpen, roles: ['admin', 'teacher'] },
+      { title: "Homework", path: "/homework", icon: Book, roles: ['admin', 'teacher', 'student', 'parent'] },
       { title: "Attendance", path: "/attendance", icon: Calendar, roles: ['admin', 'teacher', 'student', 'parent'] },
       { title: "CCTV Monitoring", path: "/cctv", icon: Camera, roles: ['admin', 'cctv_operator'] },
       { title: "Reports", path: "/reports", icon: BarChart, roles: ['admin', 'teacher', 'parent'] },
