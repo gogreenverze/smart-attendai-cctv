@@ -37,10 +37,9 @@ const App = () => {
             <TooltipProvider>
               <Routes>
                 <Route path="/login" element={<Login />} />
-                <Route path="/index" element={<Index />} />
+                <Route path="/" element={<Navigate to="/login" replace />} />
                 
                 <Route path="/" element={<AppLayout />}>
-                  <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="classes" element={<Classes />} />
                   <Route path="attendance" element={<Attendance />} />

@@ -29,13 +29,13 @@ const Index: React.FC = () => {
 
     setupDatabase();
     
-    // Redirect to dashboard page
-    navigate('/dashboard');
+    // Redirect to login page instead of dashboard
+    navigate('/login');
   }, [navigate]);
   
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <p>Initializing database and redirecting to dashboard...</p>
+      <p>Initializing database and redirecting to login...</p>
     </div>
   );
 };
