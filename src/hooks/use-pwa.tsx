@@ -1,6 +1,13 @@
 
 import { useState, useEffect } from 'react';
 
+// Extend the Navigator interface to include the standalone property
+declare global {
+  interface Navigator {
+    standalone?: boolean;
+  }
+}
+
 // Type for BeforeInstallPromptEvent which is not in standard TypeScript defs
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
