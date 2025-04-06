@@ -1,12 +1,12 @@
 
 // Service Worker for Banadurai School Attendance System
 const CACHE_NAME = 'school-attendance-v1';
-const urlsToCache = [
+const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/placeholder.svg',
-  '/favicon.ico'
+  '/favicon.ico',
+  // Add paths to your static assets, CSS, JS files
 ];
 
 // Install event - cache initial resources
@@ -15,45 +15,56 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        return cache.addAll(STATIC_ASSETS);
       })
+      .then(() => self.skipWaiting()) // Activate worker immediately
   );
 });
 
-// Fetch event - serve from cache if available, otherwise fetch from network
+// Fetch event - stale-while-revalidate strategy
 self.addEventListener('fetch', (event) => {
+  // Skip cross-origin requests
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+  
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+  
+  // Stale-while-revalidate caching strategy
   event.respondWith(
     caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-
-        // Clone the request because it's a one-time use
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(
-          (response) => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
+      .then((cachedResponse) => {
+        const fetchPromise = fetch(event.request)
+          .then((networkResponse) => {
+            // Don't cache errors or non-200 responses
+            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+              return networkResponse;
             }
-
-            // Clone the response because it's a one-time use
-            const responseToCache = response.clone();
-
+            
+            // Clone the response to put in cache
+            const responseToCache = networkResponse.clone();
+            
+            // Cache the updated version
             caches.open(CACHE_NAME)
               .then((cache) => {
-                // Don't cache API requests
+                // Don't cache API requests - modify as needed for your API paths
                 if (!event.request.url.includes('/api/')) {
                   cache.put(event.request, responseToCache);
                 }
               });
-
-            return response;
-          }
-        );
+              
+            return networkResponse;
+          })
+          .catch((error) => {
+            console.error('Fetch failed:', error);
+            // Return cached response as fallback
+            return cachedResponse;
+          });
+          
+        return cachedResponse || fetchPromise;
       })
   );
 });
@@ -67,18 +78,26 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
           return null;
         })
       );
+    }).then(() => {
+      console.log('Service Worker activated');
+      return self.clients.claim(); // Take control of all clients
     })
   );
 });
 
 // Handle push notifications
 self.addEventListener('push', (event) => {
-  const data = event.data.json();
+  // Make sure you have some data
+  const data = event.data ? event.data.json() : { 
+    title: 'New Notification',
+    body: 'Something new happened in the attendance system.'
+  };
   
   const options = {
     body: data.body,
@@ -115,5 +134,12 @@ self.addEventListener('notificationclick', (event) => {
     event.waitUntil(
       clients.openWindow('/')
     );
+  }
+});
+
+// Handle messages from the main thread
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
   }
 });

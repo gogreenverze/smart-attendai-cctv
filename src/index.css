@@ -1,204 +1,39 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 24 100% 56%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 221 83% 53%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 221 83% 53%;
-    --sidebar-accent: 221 90% 96%;
-    --sidebar-accent-foreground: 221 83% 53%;
-    --sidebar-border: 221 75% 60%;
-    --sidebar-ring: 221 83% 53%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 24 100% 56%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-    
-    --sidebar-background: 222 47% 11%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 210 40% 98%;
-    --sidebar-primary-foreground: 222 47% 11%;
-    --sidebar-accent: 217 33% 17%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 215 28% 17%;
-    --sidebar-ring: 224 76% 48%;
-
-    --school-dark: #1A1F2C;
-  }
+body.offline .online-only {
+  display: none;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
-  }
-
-  html {
-    @apply scroll-smooth antialiased;
-  }
+body.has-mobile-nav {
+  padding-bottom: 56px;
 }
 
-@layer components {
-  .card-hover {
-    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
-  }
-  
-  .btn-primary {
-    @apply bg-school-primary text-white hover:bg-school-primary/90 dark:bg-primary dark:hover:bg-primary/90;
-  }
-  
-  .btn-secondary {
-    @apply bg-school-secondary text-white hover:bg-school-secondary/90;
-  }
-  
-  .btn-accent {
-    @apply bg-school-accent text-white hover:bg-school-accent/90;
-  }
-
-  /* Mobile first utility classes */
-  .mobile-container {
-    @apply px-4 py-2 sm:px-6 sm:py-4;
-  }
-
-  .mobile-section {
-    @apply space-y-4 sm:space-y-6;
-  }
-  
-  .glass-card {
-    @apply bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border border-white/20 dark:border-slate-700/30 rounded-xl shadow-md;
-  }
+.offline-indicator {
+  display: none;
 }
 
-/* Mobile-specific styles */
-@media (max-width: 640px) {
-  .sidebar-open .main-content {
-    display: none;
-  }
-  
-  .mobile-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    z-index: 50;
-    background-color: hsl(var(--background));
-    border-top: 1px solid hsl(var(--border));
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+body.offline .offline-indicator {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #f59e0b;
+  color: white;
+  text-align: center;
+  padding: 4px;
+  font-size: 14px;
+  z-index: 9999;
 }
 
-/* For desktop, make sure everything has good padding */
-@media (min-width: 1024px) {
-  .container {
-    @apply px-6;
-  }
-}
-
-/* Utility for form inputs to be more mobile-friendly */
-input[type="date"],
-input[type="datetime-local"],
-input[type="email"],
-input[type="month"],
-input[type="number"],
-input[type="password"],
-input[type="search"],
-input[type="tel"],
-input[type="text"],
-input[type="time"],
-input[type="url"],
-input[type="week"],
-select,
-textarea {
-  @apply text-base sm:text-sm;
-  font-size: 16px; /* Prevents zoom on mobile */
-}
-
-/* Remove iOS styling from inputs */
-input,
-textarea {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-/* PWA specific styles */
 @media (display-mode: standalone) {
   body {
-    /* Add safe area insets for standalone mode */
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  }
-  
-  .has-mobile-nav {
-    padding-bottom: 4rem;
-  }
-}
-
-/* Print styles */
-@media print {
-  .no-print {
-    display: none !important;
+    /* Add additional PWA standalone mode styling if needed */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 }

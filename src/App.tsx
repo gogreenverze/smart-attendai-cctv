@@ -35,6 +35,9 @@ const App = () => {
         <ThemeProvider>
           <AuthProvider>
             <TooltipProvider>
+              <div className="offline-indicator">
+                You are currently offline. Some features may be limited.
+              </div>
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Navigate to="/login" replace />} />

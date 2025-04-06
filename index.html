@@ -11,6 +11,9 @@
 
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    <link rel="icon" type="image/png" href="/icons/icon-72x72.png" sizes="72x72" />
+    <link rel="icon" type="image/png" href="/icons/icon-96x96.png" sizes="96x96" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 
     <meta property="og:title" content="Banadurai School Attendance System" />
     <meta property="og:description" content="School Attendance Management System with CCTV Integration" />
@@ -20,6 +23,17 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <!-- Apple-specific PWA meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="School Attendance" />
+    
+    <!-- Add Apple touch icons -->
+    <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-152x152.png" />
   </head>
 
   <body>
@@ -31,14 +45,24 @@
     <!-- Service Worker Registration -->
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => {
-              console.log('ServiceWorker registration successful with scope: ', registration.scope);
-            })
-            .catch(error => {
-              console.log('ServiceWorker registration failed: ', error);
+        window.addEventListener('load', async () => {
+          try {
+            const registration = await navigator.serviceWorker.register('/service-worker.js', {
+              scope: '/'
             });
+            console.log('ServiceWorker registration successful with scope:', registration.scope);
+            
+            // Check for updates when the page loads
+            registration.update();
+            
+            // Listen for controllerchange events (when a new service worker takes control)
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+              console.log('New service worker activated, page will reload for new version');
+              window.location.reload();
+            });
+          } catch (error) {
+            console.error('ServiceWorker registration failed:', error);
+          }
         });
       }
     </script>
