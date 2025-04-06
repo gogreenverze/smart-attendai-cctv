@@ -24,7 +24,7 @@ const TeacherAssignmentDialog = ({ isOpen, onClose, teacher, onAssignmentsUpdate
   
   const [selectedClass, setSelectedClass] = useState<string>('');
   const [selectedSection, setSelectedSection] = useState<string>('');
-  const [selectedSubject, setSelectedSubject] = useState<string>('');
+  const [selectedSubject, setSelectedSubject] = useState<string>('none');
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,7 +113,7 @@ const TeacherAssignmentDialog = ({ isOpen, onClose, teacher, onAssignmentsUpdate
         teacher_id: teacherId,
         class_id: parseInt(selectedClass),
         section_id: parseInt(selectedSection),
-        subject_id: selectedSubject ? parseInt(selectedSubject) : undefined
+        subject_id: selectedSubject !== 'none' ? parseInt(selectedSubject) : undefined
       };
       
       await DatabaseService.users.assignTeacherToClass(newAssignment);
@@ -125,7 +125,7 @@ const TeacherAssignmentDialog = ({ isOpen, onClose, teacher, onAssignmentsUpdate
       // Reset selections
       setSelectedClass('');
       setSelectedSection('');
-      setSelectedSubject('');
+      setSelectedSubject('none');
       
       toast({
         title: "Success",
@@ -267,7 +267,7 @@ const TeacherAssignmentDialog = ({ isOpen, onClose, teacher, onAssignmentsUpdate
                     <SelectValue placeholder="Select subject (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No specific subject</SelectItem>
+                    <SelectItem value="none">No specific subject</SelectItem>
                     {subjects.map((subject) => (
                       <SelectItem key={subject.subject_id} value={subject.subject_id.toString()}>
                         {subject.subject_name}
