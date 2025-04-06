@@ -5,7 +5,21 @@ import * as CCTVModel from './models/cctv';
 import * as ClassModel from './models/class';
 
 // Mock data for the browser environment
-const mockData = {
+const mockData: {
+  users: any[];
+  attendance: any[];
+  cameras: any[];
+  feeds: any[];
+  aiSearchLogs: any[];
+  classes: any[];
+  sections: any[];
+  students: any[];
+  homework: any[];
+  homework_status: any[];
+  subjects: any[];
+  teachers: any[];
+  teacher_assignments: any[];
+} = {
   users: [],
   attendance: [],
   cameras: [],
@@ -16,7 +30,9 @@ const mockData = {
   students: [],
   homework: [],
   homework_status: [],
-  subjects: []
+  subjects: [],
+  teachers: [],
+  teacher_assignments: []
 };
 
 // Initialize and export database service
@@ -96,12 +112,9 @@ export const DatabaseService = {
     
     // Add new methods for teacher assignments
     createTeacher: async (teacher: any) => {
-      const newId = mockData.teachers ? 
-        (mockData.teachers.length > 0 ? Math.max(...mockData.teachers.map((t: any) => t.teacher_id)) + 1 : 1) : 1;
-      
-      if (!mockData.teachers) {
-        mockData.teachers = [];
-      }
+      const newId = mockData.teachers.length > 0 
+        ? Math.max(...mockData.teachers.map((t: any) => t.teacher_id)) + 1 
+        : 1;
       
       const newTeacher = { 
         ...teacher, 
@@ -116,18 +129,10 @@ export const DatabaseService = {
     },
     
     getTeacherByUserId: async (userId: number) => {
-      if (!mockData.teachers) {
-        mockData.teachers = [];
-        return undefined;
-      }
       return mockData.teachers.find((t: any) => t.user_id === userId);
     },
     
     assignTeacherToClass: async (assignment: any) => {
-      if (!mockData.teacher_assignments) {
-        mockData.teacher_assignments = [];
-      }
-      
       const newId = mockData.teacher_assignments.length > 0 
         ? Math.max(...mockData.teacher_assignments.map((a: any) => a.assignment_id)) + 1 
         : 1;
@@ -145,10 +150,6 @@ export const DatabaseService = {
     },
     
     removeTeacherAssignment: async (assignmentId: number) => {
-      if (!mockData.teacher_assignments) {
-        return 0;
-      }
-      
       const initialLength = mockData.teacher_assignments.length;
       mockData.teacher_assignments = mockData.teacher_assignments.filter(
         (a: any) => a.assignment_id !== assignmentId
@@ -159,11 +160,6 @@ export const DatabaseService = {
     },
     
     getTeacherAssignments: async (teacherId: number) => {
-      if (!mockData.teacher_assignments) {
-        mockData.teacher_assignments = [];
-        return [];
-      }
-      
       const assignments = mockData.teacher_assignments.filter(
         (a: any) => a.teacher_id === teacherId
       );
@@ -184,15 +180,6 @@ export const DatabaseService = {
     },
     
     getTeachersWithAssignments: async () => {
-      if (!mockData.teachers) {
-        mockData.teachers = [];
-        return [];
-      }
-      
-      if (!mockData.teacher_assignments) {
-        mockData.teacher_assignments = [];
-      }
-      
       return mockData.teachers.map((teacher: any) => {
         const user = mockData.users.find((u: any) => u.user_id === teacher.user_id) || {};
         

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,7 +9,7 @@ import {
   Search, 
   Plus, 
   MoreVertical, 
-  Users, 
+  Users as UsersIcon, 
   Edit, 
   School, 
   User,
@@ -54,7 +53,6 @@ const Users = () => {
   const [activeRole, setActiveRole] = useState('all');
   const { user: currentUser } = useAuth();
 
-  // Dialog states
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
@@ -66,7 +64,6 @@ const Users = () => {
         setLoading(true);
         let fetchedUsers = await DatabaseService.users.getWithRoles();
         
-        // If no users exist, add some mock users
         if (fetchedUsers.length === 0) {
           const mockUsers = [
             { user_id: 1, username: 'admin', email: 'admin@banadurai.edu', role_name: 'admin', created_at: new Date().toISOString() },
@@ -91,10 +88,8 @@ const Users = () => {
           fetchedUsers = await DatabaseService.users.getWithRoles();
         }
         
-        // Get teacher info
         const teachersData = await DatabaseService.users.getTeachersWithAssignments();
         
-        // Add teacher info to users
         const enhancedUsers = fetchedUsers.map(user => {
           const teacherInfo = teachersData.find(t => t.user_id === user.user_id);
           if (teacherInfo) {
@@ -123,7 +118,6 @@ const Users = () => {
       }
     };
 
-    // Only fetch if user is admin
     if (currentUser?.role === 'admin') {
       fetchUsers();
     } else {
@@ -132,7 +126,6 @@ const Users = () => {
   }, [currentUser]);
 
   useEffect(() => {
-    // Filter users based on search query and active role
     let result = [...users];
     
     if (searchQuery) {
@@ -218,7 +211,6 @@ const Users = () => {
   };
 
   const handleUserUpdated = async () => {
-    // Refresh users list
     try {
       const updatedUsers = await DatabaseService.users.getWithRoles();
       setUsers(updatedUsers);
@@ -226,8 +218,7 @@ const Users = () => {
       console.error("Failed to refresh users:", error);
     }
   };
-  
-  // Display access denied message if not admin
+
   if (currentUser?.role !== 'admin') {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh]">
@@ -249,7 +240,7 @@ const Users = () => {
           <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
           <p className="text-muted-foreground">Manage users and their roles in the system.</p>
         </div>
-        <Button className="btn-primary" onClick={() => setIsAddDialogOpen(true)}>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Add New User
         </Button>
       </div>
@@ -360,7 +351,7 @@ const Users = () => {
           ) : (
             <div className="flex justify-center items-center h-64 border rounded-md dark:border-gray-700">
               <div className="text-center">
-                <Users className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                <UsersIcon className="mx-auto h-12 w-12 text-muted-foreground/50" />
                 <p className="mt-4 text-lg font-medium">No users found</p>
                 <p className="text-muted-foreground">Try adjusting your search or filter to find what you're looking for.</p>
               </div>
@@ -369,14 +360,12 @@ const Users = () => {
         </>
       )}
       
-      {/* User Add Dialog */}
       <UserAddDialog 
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
         onUserAdded={handleUserUpdated}
       />
       
-      {/* User Edit Dialog */}
       <UserEditDialog 
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
@@ -384,7 +373,6 @@ const Users = () => {
         onUserUpdated={handleUserUpdated}
       />
       
-      {/* Teacher Assignment Dialog */}
       <TeacherAssignmentDialog
         isOpen={isAssignDialogOpen}
         onClose={() => setIsAssignDialogOpen(false)}
