@@ -1,24 +1,49 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Plus, MoreVertical, Filter, Loader2 } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { 
+  Search, 
+  Plus, 
+  MoreVertical, 
+  Users, 
+  Edit, 
+  School, 
+  User,
+  X
+} from 'lucide-react';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 import { DatabaseService } from '@/database/service';
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import UserEditDialog from '@/components/users/UserEditDialog';
+import UserAddDialog from '@/components/users/UserAddDialog';
+import TeacherAssignmentDialog from '@/components/users/TeacherAssignmentDialog';
 
 interface User {
   user_id: number;
   username: string;
   email: string;
   role_name: string;
+  first_name: string;
+  last_name: string;
   created_at: string;
   avatar?: string;
+  is_active: boolean;
+  teacher_id?: number;
+  assignment_count?: number;
+  assigned_classes?: string;
 }
 
 const Users = () => {
@@ -28,6 +53,12 @@ const Users = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeRole, setActiveRole] = useState('all');
   const { user: currentUser } = useAuth();
+
+  // Dialog states
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -60,9 +91,26 @@ const Users = () => {
           fetchedUsers = await DatabaseService.users.getWithRoles();
         }
         
-        console.log('Fetched users:', fetchedUsers);
-        setUsers(fetchedUsers);
-        setFilteredUsers(fetchedUsers);
+        // Get teacher info
+        const teachersData = await DatabaseService.users.getTeachersWithAssignments();
+        
+        // Add teacher info to users
+        const enhancedUsers = fetchedUsers.map(user => {
+          const teacherInfo = teachersData.find(t => t.user_id === user.user_id);
+          if (teacherInfo) {
+            return {
+              ...user,
+              teacher_id: teacherInfo.teacher_id,
+              assignment_count: teacherInfo.assignment_count,
+              assigned_classes: teacherInfo.assigned_classes
+            };
+          }
+          return user;
+        });
+        
+        console.log('Fetched users:', enhancedUsers);
+        setUsers(enhancedUsers);
+        setFilteredUsers(enhancedUsers);
       } catch (error) {
         console.error('Failed to fetch users:', error);
         toast({
@@ -90,7 +138,9 @@ const Users = () => {
     if (searchQuery) {
       result = result.filter(user => 
         user.username.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        user.email.toLowerCase().includes(searchQuery.toLowerCase())
+        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.first_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.last_name?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
     
@@ -136,6 +186,46 @@ const Users = () => {
         return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
+
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleManageTeacherAssignments = (user: User) => {
+    setSelectedUser(user);
+    setIsAssignDialogOpen(true);
+  };
+
+  const handleDeleteUser = async (userId: number) => {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    
+    try {
+      await DatabaseService.users.delete(userId);
+      setUsers(users.filter(user => user.user_id !== userId));
+      toast({
+        title: "Success",
+        description: "User deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete user.",
+      });
+    }
+  };
+
+  const handleUserUpdated = async () => {
+    // Refresh users list
+    try {
+      const updatedUsers = await DatabaseService.users.getWithRoles();
+      setUsers(updatedUsers);
+    } catch (error) {
+      console.error("Failed to refresh users:", error);
+    }
+  };
   
   // Display access denied message if not admin
   if (currentUser?.role !== 'admin') {
@@ -159,7 +249,7 @@ const Users = () => {
           <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
           <p className="text-muted-foreground">Manage users and their roles in the system.</p>
         </div>
-        <Button className="btn-primary">
+        <Button className="btn-primary" onClick={() => setIsAddDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Add New User
         </Button>
       </div>
@@ -190,7 +280,7 @@ const Users = () => {
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <div className="flex flex-col items-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
             <p className="mt-2 text-lg font-medium">Loading users...</p>
           </div>
         </div>
@@ -204,11 +294,16 @@ const Users = () => {
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={user.avatar} alt={user.username} />
                       <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary/20">
-                        {user.username[0].toUpperCase()}
+                        {user.first_name ? user.first_name[0].toUpperCase() : user.username ? user.username[0].toUpperCase() : 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                      <CardTitle className="text-lg">{user.username}</CardTitle>
+                      <CardTitle className="text-lg">
+                        {user.first_name} {user.last_name}
+                        {!user.is_active && (
+                          <Badge variant="outline" className="ml-2 text-xs bg-gray-100 text-gray-600">Inactive</Badge>
+                        )}
+                      </CardTitle>
                       <CardDescription>{user.email}</CardDescription>
                     </div>
                     <DropdownMenu>
@@ -221,20 +316,42 @@ const Users = () => {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Edit user</DropdownMenuItem>
-                        <DropdownMenuItem>Change role</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600 dark:text-red-400">Delete user</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditUser(user)}>
+                          <Edit className="mr-2 h-4 w-4" /> Edit user
+                        </DropdownMenuItem>
+                        {user.role_name === 'teacher' && (
+                          <DropdownMenuItem onClick={() => handleManageTeacherAssignments(user)}>
+                            <School className="mr-2 h-4 w-4" /> Manage class assignments
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem 
+                          className="text-red-600 dark:text-red-400"
+                          onClick={() => handleDeleteUser(user.user_id)}
+                        >
+                          <X className="mr-2 h-4 w-4" /> Delete user
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center justify-between">
-                      <Badge className={getRoleBadgeColor(user.role_name)}>
-                        {user.role_name.replace('_', ' ')}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        Joined {new Date(user.created_at).toLocaleDateString()}
-                      </span>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <Badge className={getRoleBadgeColor(user.role_name)}>
+                          {user.role_name.replace('_', ' ')}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          Joined {new Date(user.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      
+                      {user.role_name === 'teacher' && user.assignment_count > 0 && (
+                        <div className="mt-2 text-sm">
+                          <p className="text-muted-foreground flex items-center">
+                            <School className="mr-1 h-3 w-3" /> 
+                            Assigned to: {user.assigned_classes?.split(',').join(', ')}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -243,13 +360,37 @@ const Users = () => {
           ) : (
             <div className="flex justify-center items-center h-64 border rounded-md dark:border-gray-700">
               <div className="text-center">
-                <p className="text-lg font-medium">No users found</p>
+                <Users className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                <p className="mt-4 text-lg font-medium">No users found</p>
                 <p className="text-muted-foreground">Try adjusting your search or filter to find what you're looking for.</p>
               </div>
             </div>
           )}
         </>
       )}
+      
+      {/* User Add Dialog */}
+      <UserAddDialog 
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onUserAdded={handleUserUpdated}
+      />
+      
+      {/* User Edit Dialog */}
+      <UserEditDialog 
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        user={selectedUser}
+        onUserUpdated={handleUserUpdated}
+      />
+      
+      {/* Teacher Assignment Dialog */}
+      <TeacherAssignmentDialog
+        isOpen={isAssignDialogOpen}
+        onClose={() => setIsAssignDialogOpen(false)}
+        teacher={selectedUser}
+        onAssignmentsUpdated={handleUserUpdated}
+      />
     </div>
   );
 };

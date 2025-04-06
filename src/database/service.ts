@@ -1,4 +1,3 @@
-
 import { initializeDatabase, getDbConnection, closeDatabase } from './connection';
 import * as UserModel from './models/user';
 import * as AttendanceModel from './models/attendance';
@@ -92,6 +91,129 @@ export const DatabaseService = {
             break;
         }
         return { ...user, role_name };
+      });
+    },
+    
+    // Add new methods for teacher assignments
+    createTeacher: async (teacher: any) => {
+      const newId = mockData.teachers ? 
+        (mockData.teachers.length > 0 ? Math.max(...mockData.teachers.map((t: any) => t.teacher_id)) + 1 : 1) : 1;
+      
+      if (!mockData.teachers) {
+        mockData.teachers = [];
+      }
+      
+      const newTeacher = { 
+        ...teacher, 
+        teacher_id: newId, 
+        created_at: new Date(), 
+        updated_at: new Date() 
+      };
+      
+      mockData.teachers.push(newTeacher);
+      localStorage.setItem('school_attendance_mock_data', JSON.stringify(mockData));
+      return [newId];
+    },
+    
+    getTeacherByUserId: async (userId: number) => {
+      if (!mockData.teachers) {
+        mockData.teachers = [];
+        return undefined;
+      }
+      return mockData.teachers.find((t: any) => t.user_id === userId);
+    },
+    
+    assignTeacherToClass: async (assignment: any) => {
+      if (!mockData.teacher_assignments) {
+        mockData.teacher_assignments = [];
+      }
+      
+      const newId = mockData.teacher_assignments.length > 0 
+        ? Math.max(...mockData.teacher_assignments.map((a: any) => a.assignment_id)) + 1 
+        : 1;
+        
+      const newAssignment = { 
+        ...assignment, 
+        assignment_id: newId, 
+        created_at: new Date(), 
+        updated_at: new Date() 
+      };
+      
+      mockData.teacher_assignments.push(newAssignment);
+      localStorage.setItem('school_attendance_mock_data', JSON.stringify(mockData));
+      return [newId];
+    },
+    
+    removeTeacherAssignment: async (assignmentId: number) => {
+      if (!mockData.teacher_assignments) {
+        return 0;
+      }
+      
+      const initialLength = mockData.teacher_assignments.length;
+      mockData.teacher_assignments = mockData.teacher_assignments.filter(
+        (a: any) => a.assignment_id !== assignmentId
+      );
+      
+      localStorage.setItem('school_attendance_mock_data', JSON.stringify(mockData));
+      return initialLength - mockData.teacher_assignments.length;
+    },
+    
+    getTeacherAssignments: async (teacherId: number) => {
+      if (!mockData.teacher_assignments) {
+        mockData.teacher_assignments = [];
+        return [];
+      }
+      
+      const assignments = mockData.teacher_assignments.filter(
+        (a: any) => a.teacher_id === teacherId
+      );
+      
+      return assignments.map((a: any) => {
+        const classData = mockData.classes.find((c: any) => c.class_id === a.class_id) || { class_name: 'Unknown' };
+        const section = mockData.sections.find((s: any) => s.section_id === a.section_id) || { section_name: 'Unknown' };
+        const subject = a.subject_id ? 
+          mockData.subjects.find((s: any) => s.subject_id === a.subject_id) : null;
+          
+        return {
+          ...a,
+          class_name: classData.class_name,
+          section_name: section.section_name,
+          subject_name: subject ? subject.subject_name : null
+        };
+      });
+    },
+    
+    getTeachersWithAssignments: async () => {
+      if (!mockData.teachers) {
+        mockData.teachers = [];
+        return [];
+      }
+      
+      if (!mockData.teacher_assignments) {
+        mockData.teacher_assignments = [];
+      }
+      
+      return mockData.teachers.map((teacher: any) => {
+        const user = mockData.users.find((u: any) => u.user_id === teacher.user_id) || {};
+        
+        const assignments = mockData.teacher_assignments.filter((a: any) => a.teacher_id === teacher.teacher_id);
+        
+        // Get class names for the assignments
+        const classIds = [...new Set(assignments.map((a: any) => a.class_id))];
+        const classNames = classIds.map(id => {
+          const classInfo = mockData.classes.find((c: any) => c.class_id === id);
+          return classInfo ? classInfo.class_name : 'Unknown';
+        });
+        
+        return {
+          ...teacher,
+          first_name: user.first_name || '',
+          last_name: user.last_name || '',
+          email: user.email || '',
+          username: user.username || '',
+          assigned_classes: classNames.join(','),
+          assignment_count: assignments.length
+        };
       });
     }
   },
