@@ -6,6 +6,7 @@ import Users from './pages/Users';
 import Classes from './pages/Classes';
 import Attendance from './pages/Attendance';
 import CCTVMonitoring from './pages/CCTVMonitoring';
+import CCTVHowItWorks from './pages/CCTVHowItWorks';
 import Reports from './pages/Reports';
 import AISearch from './pages/AISearch';
 import Settings from './pages/Settings';
@@ -22,6 +23,7 @@ export const AppRoutes = () => {
     { path: '/classes', element: <Classes /> },
     { path: '/attendance', element: <Attendance /> },
     { path: '/cctv', element: <CCTVMonitoring /> },
+    { path: '/cctv-how-it-works', element: <CCTVHowItWorks /> },
     { path: '/reports', element: <Reports /> },
     { path: '/search', element: <AISearch /> },
     { path: '/settings', element: <Settings /> },

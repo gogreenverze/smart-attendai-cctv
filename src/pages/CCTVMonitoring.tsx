@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
-import { RotateCw, Search, Plus, Shield } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { RotateCw, Search, Plus, Shield, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,15 +19,6 @@ import CCTVSettings from '@/components/cctv/CCTVSettings';
 import CameraDiscoveryDialog from '@/components/cctv/CameraDiscoveryDialog';
 import AISearchDialog from '@/components/cctv/AISearchDialog';
 import { cameraLocations } from './CCTVData';
-
-// Mock data for detection events
-const detectionEvents = [
-  { id: 1, camera: 'Main Entrance', time: '08:15 AM', description: 'Multiple students detected entering', severity: 'info' as const },
-  { id: 2, camera: 'Class 10A', time: '09:30 AM', description: 'Attendance captured', severity: 'success' as const },
-  { id: 3, camera: 'Playground', time: '10:45 AM', description: 'Motion detected during class hours', severity: 'warning' as const },
-  { id: 4, camera: 'Admin Block', time: '11:20 AM', description: 'Staff movement', severity: 'info' as const },
-  { id: 5, camera: 'Cafeteria', time: '12:30 PM', description: 'Student gathering during lunch', severity: 'info' as const },
-];
 
 const CCTVMonitoring: React.FC = () => {
   const { user } = useAuth();
@@ -52,7 +43,6 @@ const CCTVMonitoring: React.FC = () => {
   
   const { toast } = useToast();
 
-  // Refresh camera feeds every 5 seconds
   useEffect(() => {
     if (playing) {
       const interval = setInterval(() => {
@@ -110,7 +100,6 @@ const CCTVMonitoring: React.FC = () => {
           description: `${camera.name} was successfully configured and added`
         });
         
-        // Update the camera in the discovered list
         setDiscoveredCameras(prev => 
           prev.map(c => c.id === camera.id ? {...c, isConfigured: true} : c)
         );
@@ -183,6 +172,12 @@ const CCTVMonitoring: React.FC = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold dark:text-white text-gray-800">CCTV Monitoring</h1>
         <div className="flex space-x-2">
+          <Link to="/cctv-how-it-works">
+            <Button variant="outline" className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
+              <HelpCircle className="h-4 w-4 mr-2" />
+              How It Works
+            </Button>
+          </Link>
           <div className="relative w-[250px]">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
             <Input
@@ -291,7 +286,6 @@ const CCTVMonitoring: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Camera Discovery Dialog */}
       <CameraDiscoveryDialog 
         open={showDiscoveryDialog}
         onOpenChange={setShowDiscoveryDialog}
@@ -301,7 +295,6 @@ const CCTVMonitoring: React.FC = () => {
         onConfigureCamera={handleConfigureCamera}
       />
       
-      {/* AI Search Dialog */}
       <AISearchDialog 
         open={showAISearchDialog}
         onOpenChange={setShowAISearchDialog}
