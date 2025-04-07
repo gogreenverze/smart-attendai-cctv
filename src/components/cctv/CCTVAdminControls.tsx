@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Switch as SwitchUI } from '@/components/ui/switch';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Shield, Lock, Settings, Server, Database, RefreshCw, Save, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsItem, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
 
 interface CCTVAdminControlsProps {
@@ -138,7 +138,7 @@ export const CCTVAdminControls: React.FC<CCTVAdminControlsProps> = ({ isAdmin })
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="encryption">End-to-End Encryption</Label>
-                    <SwitchUI 
+                    <Switch 
                       id="encryption"
                       checked={isEncryptionEnabled} 
                       onCheckedChange={handleToggleEncryption} 
@@ -152,7 +152,7 @@ export const CCTVAdminControls: React.FC<CCTVAdminControlsProps> = ({ isAdmin })
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="mfa">Multi-Factor Authentication</Label>
-                    <SwitchUI 
+                    <Switch 
                       id="mfa"
                       checked={isMultiFactorEnabled} 
                       onCheckedChange={setIsMultiFactorEnabled} 
@@ -253,7 +253,7 @@ export const CCTVAdminControls: React.FC<CCTVAdminControlsProps> = ({ isAdmin })
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="backup">Automatic Backup</Label>
-                    <SwitchUI 
+                    <Switch 
                       id="backup"
                       checked={isBackupEnabled} 
                       onCheckedChange={setIsBackupEnabled} 
@@ -360,7 +360,7 @@ export const CCTVAdminControls: React.FC<CCTVAdminControlsProps> = ({ isAdmin })
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="https">Enforce HTTPS</Label>
-                    <SwitchUI 
+                    <Switch 
                       id="https"
                       checked={true} 
                     />
@@ -398,7 +398,7 @@ export const CCTVAdminControls: React.FC<CCTVAdminControlsProps> = ({ isAdmin })
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="firewall">Network Firewall</Label>
-                    <SwitchUI 
+                    <Switch 
                       id="firewall"
                       checked={true} 
                     />
