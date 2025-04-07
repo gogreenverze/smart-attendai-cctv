@@ -264,7 +264,7 @@ const CCTVMonitoring: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="events">
-          <DetectionEvents events={detectionEvents} />
+          <DetectionEvents />
         </TabsContent>
         
         <TabsContent value="ai-search">
