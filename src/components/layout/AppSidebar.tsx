@@ -29,15 +29,17 @@ import {
   LogOut,
   Moon,
   Sun,
-  Book
+  Book,
+  Shield
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const AppSidebar: React.FC = () => {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, isDarkMode } = useTheme();
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -67,7 +69,7 @@ const AppSidebar: React.FC = () => {
   };
 
   return (
-    <Sidebar className="bg-school-primary text-white border-r-0">
+    <Sidebar className={`border-r-0 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-school-primary text-white'}`}>
       <SidebarHeader className="flex items-center justify-between p-4 border-b border-white/10">
         <div className="flex items-center space-x-2">
           <img 
@@ -94,6 +96,11 @@ const AppSidebar: React.FC = () => {
                     <Link to={item.path} className="flex items-center gap-3">
                       <item.icon size={18} />
                       <span>{item.title}</span>
+                      {item.path === '/cctv' && user?.role === 'admin' && (
+                        <Badge variant="outline" className="ml-auto text-[10px] py-0 h-4 bg-white/10 text-white border-white/20">
+                          Admin
+                        </Badge>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -116,15 +123,22 @@ const AppSidebar: React.FC = () => {
                 <p className="text-xs opacity-80 capitalize">{user?.role?.replace('_', ' ')}</p>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={toggleTheme}
-              className="rounded-full bg-white/10 border-white/20 hover:bg-white/20 text-white"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={toggleTheme}
+                  className="rounded-full bg-white/10 border-white/20 hover:bg-white/20 text-white"
+                  aria-label="Toggle theme"
+                >
+                  {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Switch to {isDarkMode ? 'light' : 'dark'} mode</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
           <div>
             <SidebarMenu>
@@ -149,6 +163,19 @@ const AppSidebar: React.FC = () => {
         </div>
       </SidebarFooter>
     </Sidebar>
+  );
+};
+
+// Badge component for the admin indicator
+const Badge = ({ children, className, variant = "default" }: { 
+  children: React.ReactNode; 
+  className?: string;
+  variant?: "default" | "secondary" | "outline" | "destructive";
+}) => {
+  return (
+    <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${className}`}>
+      {children}
+    </span>
   );
 };
 

@@ -7,6 +7,7 @@ interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
+  isDarkMode: boolean; // Added for easier checks
 }
 
 // Create context with default values
@@ -14,6 +15,7 @@ const ThemeContext = createContext<ThemeContextType>({
   theme: 'light',
   setTheme: () => {},
   toggleTheme: () => {},
+  isDarkMode: false,
 });
 
 // Custom hook for using the theme context
@@ -41,6 +43,8 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     // Default to light theme if not in browser context
     return 'light';
   });
+
+  const isDarkMode = theme === 'dark';
 
   // Toggle theme function
   const toggleTheme = () => {
@@ -85,7 +89,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   }, []);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, isDarkMode }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
-import { Camera, Maximize2, Play, Pause, Download, Search, RotateCw, Calendar, Clock, AlertTriangle, Plus, Settings, RefreshCw, Check, X, Upload } from 'lucide-react';
+import { Camera, Maximize2, Play, Pause, Download, Search, RotateCw, Calendar, Clock, AlertTriangle, Plus, Settings, RefreshCw, Check, X, Upload, Shield } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { DiscoveredCamera, cameraDiscoveryService } from '@/services/CameraDiscoveryService';
 import { FacialSearchQuery, FacialSearchResult, facialRecognitionService } from '@/services/FacialRecognitionService';
@@ -16,6 +16,9 @@ import { format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { cameraLocations } from './CCTVData';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import CCTVAdminControls from '@/components/cctv/CCTVAdminControls';
 
 // Mock data for detection events
 const detectionEvents = [
@@ -35,6 +38,8 @@ const generateCCTVPlaceholder = (id: number) => {
 };
 
 const CCTVMonitoring: React.FC = () => {
+  const { user } = useAuth();
+  const { isDarkMode } = useTheme();
   const [selectedCamera, setSelectedCamera] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState('grid');
   const [playing, setPlaying] = useState(true);
@@ -51,6 +56,7 @@ const CCTVMonitoring: React.FC = () => {
   const [searchPerson, setSearchPerson] = useState('');
   const [showAISearchDialog, setShowAISearchDialog] = useState(false);
   const [autoAttendanceEnabled, setAutoAttendanceEnabled] = useState(false);
+  const isAdmin = user?.role === 'admin';
   
   const { toast } = useToast();
 
@@ -186,9 +192,9 @@ const CCTVMonitoring: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className={`space-y-6 animate-fade-in dark-mode-transition ${isDarkMode ? 'dark' : ''}`}>
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">CCTV Monitoring</h1>
+        <h1 className="text-3xl font-bold dark:text-white text-gray-800">CCTV Monitoring</h1>
         <div className="flex space-x-2">
           <div className="relative w-[250px]">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
@@ -214,6 +220,16 @@ const CCTVMonitoring: React.FC = () => {
             <Search className="h-4 w-4 mr-2" />
             AI Search
           </Button>
+          {isAdmin && (
+            <Button 
+              variant="outline" 
+              className="bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800"
+              onClick={() => setCurrentTab('admin')}
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              Admin Mode
+            </Button>
+          )}
         </div>
       </div>
 
@@ -224,12 +240,18 @@ const CCTVMonitoring: React.FC = () => {
           <TabsTrigger value="events">Detection Events</TabsTrigger>
           <TabsTrigger value="ai-search">AI Search Results</TabsTrigger>
           <TabsTrigger value="settings">CCTV Settings</TabsTrigger>
+          {isAdmin && (
+            <TabsTrigger value="admin" className="bg-amber-50 text-amber-800 data-[state=active]:bg-amber-700 data-[state=active]:text-white dark:bg-amber-900/20 dark:text-amber-400 dark:data-[state=active]:bg-amber-700 dark:data-[state=active]:text-white">
+              <Shield className="h-4 w-4 mr-2" />
+              Admin Controls
+            </TabsTrigger>
+          )}
         </TabsList>
         
         <TabsContent value="live" className="space-y-4">
           <div className="flex space-x-4">
             <div className="w-1/4 space-y-4">
-              <Card>
+              <Card className="dark:border-gray-700">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg">Camera List</CardTitle>
                   <CardDescription>Select a camera to view</CardDescription>
@@ -240,12 +262,14 @@ const CCTVMonitoring: React.FC = () => {
                       <div 
                         key={camera.id} 
                         className={`p-3 rounded-md cursor-pointer flex justify-between items-center ${
-                          selectedCamera === camera.id ? 'bg-school-primary text-white' : 'bg-gray-100 hover:bg-gray-200'
+                          selectedCamera === camera.id 
+                            ? 'bg-school-primary text-white dark:bg-gray-700' 
+                            : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700'
                         }`}
                         onClick={() => handleCameraSelect(camera.id)}
                       >
                         <div className="flex items-center">
-                          <Camera className={`h-4 w-4 ${selectedCamera === camera.id ? 'text-white' : 'text-gray-700'} mr-2`} />
+                          <Camera className={`h-4 w-4 ${selectedCamera === camera.id ? 'text-white' : 'text-gray-700 dark:text-gray-300'} mr-2`} />
                           <span>{camera.name}</span>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -262,16 +286,16 @@ const CCTVMonitoring: React.FC = () => {
                     ))}
                   </div>
                 </CardContent>
-                <CardFooter className="py-2 flex justify-between border-t">
+                <CardFooter className="py-2 flex justify-between border-t dark:border-gray-700">
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className={`${autoAttendanceEnabled ? 'bg-green-100' : ''}`}
+                    className={`${autoAttendanceEnabled ? 'bg-green-100 dark:bg-green-900/30' : ''}`}
                     onClick={handleToggleAutoAttendance}
                   >
                     {autoAttendanceEnabled ? (
                       <>
-                        <Check className="h-4 w-4 mr-2 text-green-600" />
+                        <Check className="h-4 w-4 mr-2 text-green-600 dark:text-green-400" />
                         Auto Attendance On
                       </>
                     ) : (
@@ -285,7 +309,7 @@ const CCTVMonitoring: React.FC = () => {
               </Card>
             </div>
             <div className="w-3/4">
-              <Card>
+              <Card className="dark:border-gray-700">
                 <CardHeader className="pb-2 flex-row justify-between items-center">
                   <div>
                     <CardTitle className="text-lg">Camera Feeds</CardTitle>
@@ -312,7 +336,7 @@ const CCTVMonitoring: React.FC = () => {
                       {filteredCameras.filter(c => c.online).slice(0, 9).map(camera => (
                         <div 
                           key={camera.id} 
-                          className="relative rounded-md overflow-hidden border cursor-pointer"
+                          className="relative rounded-md overflow-hidden border dark:border-gray-700 cursor-pointer"
                           onClick={() => handleCameraSelect(camera.id)}
                         >
                           <img 
@@ -335,7 +359,7 @@ const CCTVMonitoring: React.FC = () => {
                   ) : (
                     <div className="space-y-4">
                       {selectedCamera ? (
-                        <div className="relative rounded-md overflow-hidden border">
+                        <div className="relative rounded-md overflow-hidden border dark:border-gray-700">
                           <img 
                             src={generateCCTVPlaceholder(selectedCamera + refreshKey)} 
                             alt="Selected Camera" 
@@ -356,14 +380,14 @@ const CCTVMonitoring: React.FC = () => {
                           </div>
                         </div>
                       ) : (
-                        <div className="h-96 flex items-center justify-center border rounded-md bg-gray-50">
-                          <p className="text-gray-500">Select a camera to view</p>
+                        <div className="h-96 flex items-center justify-center border rounded-md bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
+                          <p className="text-gray-500 dark:text-gray-400">Select a camera to view</p>
                         </div>
                       )}
                       
                       <div className="space-y-1">
                         <div className="flex justify-between">
-                          <span className="text-sm text-gray-500">Zoom Level: {zoomLevel[0]}%</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">Zoom Level: {zoomLevel[0]}%</span>
                           <div className="flex space-x-2">
                             <Button variant="outline" size="sm" onClick={() => setZoomLevel([100])}>Reset</Button>
                           </div>
@@ -379,8 +403,8 @@ const CCTVMonitoring: React.FC = () => {
                     </div>
                   )}
                 </CardContent>
-                <CardFooter className="flex justify-between">
-                  <div className="text-sm text-gray-500 flex items-center">
+                <CardFooter className="flex justify-between dark:border-gray-700">
+                  <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
                     <Clock className="h-4 w-4 mr-1" /> Live as of {new Date().toLocaleTimeString()}
                   </div>
                   <Button variant="outline" onClick={handleCaptureSnapshot}>
@@ -394,7 +418,7 @@ const CCTVMonitoring: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="recordings">
-          <Card>
+          <Card className="dark:border-gray-700">
             <CardHeader>
               <CardTitle>Recordings Archive</CardTitle>
               <CardDescription>Access past footage and recordings</CardDescription>
@@ -405,8 +429,8 @@ const CCTVMonitoring: React.FC = () => {
                   <Calendar className="h-8 w-8 text-gray-400" />
                   <Clock className="h-8 w-8 text-gray-400" />
                 </div>
-                <h3 className="text-xl font-medium text-gray-700">Recording Archive</h3>
-                <p className="text-gray-500 max-w-md">
+                <h3 className="text-xl font-medium text-gray-700 dark:text-gray-300">Recording Archive</h3>
+                <p className="text-gray-500 dark:text-gray-400 max-w-md">
                   This section would allow searching and viewing of recorded CCTV footage by date, time, and camera location.
                 </p>
                 <Button className="btn-primary">
@@ -419,7 +443,7 @@ const CCTVMonitoring: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="events">
-          <Card>
+          <Card className="dark:border-gray-700">
             <CardHeader>
               <CardTitle>Detection Events</CardTitle>
               <CardDescription>AI-detected events from camera feeds</CardDescription>
@@ -427,27 +451,27 @@ const CCTVMonitoring: React.FC = () => {
             <CardContent>
               <div className="space-y-4">
                 {detectionEvents.map(event => (
-                  <div key={event.id} className="flex items-start space-x-4 p-4 border rounded-md">
+                  <div key={event.id} className="flex items-start space-x-4 p-4 border dark:border-gray-700 rounded-md">
                     <div>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        event.severity === 'warning' ? 'bg-amber-100' :
-                        event.severity === 'success' ? 'bg-green-100' : 'bg-blue-100'
+                        event.severity === 'warning' ? 'bg-amber-100 dark:bg-amber-900/30' :
+                        event.severity === 'success' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-blue-100 dark:bg-blue-900/30'
                       }`}>
                         {event.severity === 'warning' ? (
-                          <AlertTriangle className={`h-4 w-4 text-amber-500`} />
+                          <AlertTriangle className={`h-4 w-4 text-amber-500 dark:text-amber-400`} />
                         ) : event.severity === 'success' ? (
-                          <Camera className={`h-4 w-4 text-green-500`} />
+                          <Camera className={`h-4 w-4 text-green-500 dark:text-green-400`} />
                         ) : (
-                          <Camera className={`h-4 w-4 text-blue-500`} />
+                          <Camera className={`h-4 w-4 text-blue-500 dark:text-blue-400`} />
                         )}
                       </div>
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between">
-                        <h4 className="font-medium">{event.camera}</h4>
-                        <span className="text-sm text-gray-500">{event.time}</span>
+                        <h4 className="font-medium dark:text-white">{event.camera}</h4>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">{event.time}</span>
                       </div>
-                      <p className="text-gray-700 mt-1">{event.description}</p>
+                      <p className="text-gray-700 dark:text-gray-300 mt-1">{event.description}</p>
                     </div>
                   </div>
                 ))}
@@ -457,7 +481,7 @@ const CCTVMonitoring: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="ai-search">
-          <Card>
+          <Card className="dark:border-gray-700">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Facial Recognition Search Results</CardTitle>
@@ -471,9 +495,9 @@ const CCTVMonitoring: React.FC = () => {
             <CardContent>
               {faceSearchResults.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-64 text-center">
-                  <Search className="h-12 w-12 text-gray-300 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-700">No search results yet</h3>
-                  <p className="text-gray-500 max-w-md mt-2">
+                  <Search className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">No search results yet</h3>
+                  <p className="text-gray-500 dark:text-gray-400 max-w-md mt-2">
                     Use the AI Search feature to find people across camera footage using facial recognition
                   </p>
                   <Button 
@@ -486,7 +510,7 @@ const CCTVMonitoring: React.FC = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {faceSearchResults.map((result, i) => (
-                    <div key={i} className="border rounded-md overflow-hidden">
+                    <div key={i} className="border dark:border-gray-700 rounded-md overflow-hidden">
                       <div className="relative">
                         <img 
                           src={result.imageUrl} 
@@ -502,25 +526,25 @@ const CCTVMonitoring: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="p-3 space-y-1">
+                      <div className="p-3 space-y-1 dark:text-gray-300">
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-700">Camera:</span>
+                          <span className="text-gray-700 dark:text-gray-400">Camera:</span>
                           <span className="font-medium">{result.cameraName}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-700">Date:</span>
+                          <span className="text-gray-700 dark:text-gray-400">Date:</span>
                           <span className="font-medium">
                             {format(result.timestamp, 'dd MMM yyyy')}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-700">Time:</span>
+                          <span className="text-gray-700 dark:text-gray-400">Time:</span>
                           <span className="font-medium">
                             {format(result.timestamp, 'h:mm a')}
                           </span>
                         </div>
                       </div>
-                      <div className="border-t p-3 flex justify-between">
+                      <div className="border-t dark:border-gray-700 p-3 flex justify-between">
                         <Button variant="outline" size="sm">
                           View Footage
                         </Button>
@@ -537,7 +561,7 @@ const CCTVMonitoring: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="settings">
-          <Card>
+          <Card className="dark:border-gray-700">
             <CardHeader>
               <CardTitle>CCTV System Settings</CardTitle>
               <CardDescription>Configure camera and AI settings</CardDescription>
@@ -545,10 +569,10 @@ const CCTVMonitoring: React.FC = () => {
             <CardContent className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Camera Settings</h3>
+                  <h3 className="text-lg font-medium dark:text-white">Camera Settings</h3>
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center py-2 border-b">
-                      <span>Auto-discovery frequency</span>
+                    <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
+                      <span className="dark:text-gray-300">Auto-discovery frequency</span>
                       <Select defaultValue="manual">
                         <SelectTrigger className="w-[180px]">
                           <SelectValue placeholder="Select frequency" />
@@ -561,8 +585,8 @@ const CCTVMonitoring: React.FC = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b">
-                      <span>Default camera resolution</span>
+                    <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
+                      <span className="dark:text-gray-300">Default camera resolution</span>
                       <Select defaultValue="720p">
                         <SelectTrigger className="w-[180px]">
                           <SelectValue placeholder="Select resolution" />
@@ -575,38 +599,38 @@ const CCTVMonitoring: React.FC = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b">
-                      <span>Motion detection sensitivity</span>
+                    <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
+                      <span className="dark:text-gray-300">Motion detection sensitivity</span>
                       <div className="w-[180px]">
                         <Slider defaultValue={[75]} max={100} step={1} />
                       </div>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b">
-                      <span>Record on motion</span>
-                      <Switch defaultChecked />
+                    <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
+                      <span className="dark:text-gray-300">Record on motion</span>
+                      <SwitchUI defaultChecked />
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b">
-                      <span>Notification on motion</span>
-                      <Switch defaultChecked />
+                    <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
+                      <span className="dark:text-gray-300">Notification on motion</span>
+                      <SwitchUI defaultChecked />
                     </div>
                   </div>
                 </div>
                 
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium">AI Recognition Settings</h3>
+                  <h3 className="text-lg font-medium dark:text-white">AI Recognition Settings</h3>
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center py-2 border-b">
-                      <span>Face recognition confidence threshold</span>
+                    <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
+                      <span className="dark:text-gray-300">Face recognition confidence threshold</span>
                       <div className="w-[180px]">
                         <Slider defaultValue={[70]} max={100} step={1} />
                       </div>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b">
-                      <span>Auto-mark attendance</span>
-                      <Switch checked={autoAttendanceEnabled} onCheckedChange={handleToggleAutoAttendance} />
+                    <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
+                      <span className="dark:text-gray-300">Auto-mark attendance</span>
+                      <SwitchUI checked={autoAttendanceEnabled} onCheckedChange={handleToggleAutoAttendance} />
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b">
-                      <span>Student recognition model</span>
+                    <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
+                      <span className="dark:text-gray-300">Student recognition model</span>
                       <Select defaultValue="facenet">
                         <SelectTrigger className="w-[180px]">
                           <SelectValue placeholder="Select model" />
@@ -618,8 +642,8 @@ const CCTVMonitoring: React.FC = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b">
-                      <span>Process frames</span>
+                    <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
+                      <span className="dark:text-gray-300">Process frames</span>
                       <Select defaultValue="15fps">
                         <SelectTrigger className="w-[180px]">
                           <SelectValue placeholder="Select framerate" />
@@ -631,16 +655,16 @@ const CCTVMonitoring: React.FC = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b">
-                      <span>Save recognition data</span>
-                      <Switch defaultChecked />
+                    <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
+                      <span className="dark:text-gray-300">Save recognition data</span>
+                      <SwitchUI defaultChecked />
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div className="pt-4 border-t">
-                <h3 className="text-lg font-medium mb-4">Training & Management</h3>
+              <div className="pt-4 border-t dark:border-gray-700">
+                <h3 className="text-lg font-medium mb-4 dark:text-white">Training & Management</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <Button className="w-full">
                     <Upload className="h-4 w-4 mr-2" />
@@ -653,7 +677,7 @@ const CCTVMonitoring: React.FC = () => {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="border-t pt-4 flex justify-between">
+            <CardFooter className="border-t dark:border-gray-700 pt-4 flex justify-between">
               <Button variant="outline">Reset to Default</Button>
               <Button>
                 <Check className="h-4 w-4 mr-2" />
@@ -662,11 +686,15 @@ const CCTVMonitoring: React.FC = () => {
             </CardFooter>
           </Card>
         </TabsContent>
+        
+        <TabsContent value="admin">
+          <CCTVAdminControls isAdmin={isAdmin} />
+        </TabsContent>
       </Tabs>
       
       {/* Camera Discovery Dialog */}
       <Dialog open={showDiscoveryDialog} onOpenChange={setShowDiscoveryDialog}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] dark:border-gray-700 dark:bg-gray-800">
           <DialogHeader>
             <DialogTitle>Discover CCTV Cameras</DialogTitle>
             <DialogDescription>
@@ -678,31 +706,31 @@ const CCTVMonitoring: React.FC = () => {
             {isDiscovering ? (
               <div className="flex flex-col items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700 mb-4"></div>
-                <p className="text-center text-gray-600">
+                <p className="text-center text-gray-600 dark:text-gray-400">
                   Scanning network for ONVIF-compatible cameras...
                 </p>
               </div>
             ) : discoveredCameras.length > 0 ? (
               <div className="space-y-4">
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   {discoveredCameras.length} camera{discoveredCameras.length !== 1 ? 's' : ''} discovered on your network:
                 </p>
                 <div className="max-h-[300px] overflow-y-auto space-y-3">
                   {discoveredCameras.map(camera => (
-                    <div key={camera.id} className="flex justify-between items-center border rounded-md p-3">
+                    <div key={camera.id} className="flex justify-between items-center border dark:border-gray-700 rounded-md p-3">
                       <div className="flex items-start space-x-3">
-                        <div className="bg-gray-100 p-2 rounded-md">
-                          <Camera className="h-6 w-6 text-gray-700" />
+                        <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-md">
+                          <Camera className="h-6 w-6 text-gray-700 dark:text-gray-300" />
                         </div>
                         <div>
-                          <h4 className="font-medium">{camera.name}</h4>
-                          <p className="text-sm text-gray-600">{camera.ip}:{camera.port}</p>
-                          <p className="text-xs text-gray-500">{camera.manufacturer} {camera.model}</p>
+                          <h4 className="font-medium dark:text-white">{camera.name}</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{camera.ip}:{camera.port}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-500">{camera.manufacturer} {camera.model}</p>
                         </div>
                       </div>
                       <div>
                         {camera.isConfigured ? (
-                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
                             <Check className="h-3 w-3 mr-1" />
                             Configured
                           </Badge>
@@ -722,11 +750,11 @@ const CCTVMonitoring: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                  <RefreshCw className="h-8 w-8 text-gray-500" />
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 mb-4">
+                  <RefreshCw className="h-8 w-8 text-gray-500 dark:text-gray-400" />
                 </div>
-                <h4 className="text-lg font-medium">No cameras discovered yet</h4>
-                <p className="text-gray-600 mt-2">
+                <h4 className="text-lg font-medium dark:text-white">No cameras discovered yet</h4>
+                <p className="text-gray-600 dark:text-gray-400 mt-2">
                   Click the scan button to search for CCTV cameras on your network
                 </p>
               </div>
@@ -764,7 +792,7 @@ const CCTVMonitoring: React.FC = () => {
       
       {/* AI Search Dialog */}
       <Dialog open={showAISearchDialog} onOpenChange={setShowAISearchDialog}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] dark:border-gray-700 dark:bg-gray-800">
           <DialogHeader>
             <DialogTitle>AI-Powered Facial Search</DialogTitle>
             <DialogDescription>
@@ -774,7 +802,7 @@ const CCTVMonitoring: React.FC = () => {
           
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Person Name</label>
+              <label className="text-sm font-medium dark:text-white">Person Name</label>
               <Input 
                 placeholder="Enter name to search" 
                 value={searchPerson}
@@ -783,7 +811,7 @@ const CCTVMonitoring: React.FC = () => {
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Date</label>
+              <label className="text-sm font-medium dark:text-white">Date</label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -794,7 +822,7 @@ const CCTVMonitoring: React.FC = () => {
                     {searchDate ? format(searchDate, 'PPP') : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0 dark:border-gray-700">
                   <CalendarComponent
                     mode="single"
                     selected={searchDate}
@@ -806,7 +834,7 @@ const CCTVMonitoring: React.FC = () => {
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Camera Locations</label>
+              <label className="text-sm font-medium dark:text-white">Camera Locations</label>
               <Select defaultValue="all">
                 <SelectTrigger>
                   <SelectValue placeholder="Select cameras" />
@@ -846,36 +874,14 @@ const CCTVMonitoring: React.FC = () => {
 };
 
 // Helper component for Switch
-const Switch = ({ checked, onCheckedChange, defaultChecked }: any) => {
-  const [isChecked, setIsChecked] = useState(defaultChecked || checked || false);
-  
-  useEffect(() => {
-    if (checked !== undefined) {
-      setIsChecked(checked);
-    }
-  }, [checked]);
-  
-  const handleToggle = () => {
-    const newValue = !isChecked;
-    setIsChecked(newValue);
-    if (onCheckedChange) {
-      onCheckedChange(newValue);
-    }
-  };
-  
+const SwitchUI = ({ checked, onCheckedChange, defaultChecked, id }: any) => {
   return (
-    <div 
-      className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${
-        isChecked ? 'bg-blue-600' : 'bg-gray-300'
-      }`}
-      onClick={handleToggle}
-    >
-      <div 
-        className={`absolute w-4 h-4 rounded-full bg-white top-0.5 transition-transform ${
-          isChecked ? 'transform translate-x-5' : 'translate-x-0.5'
-        }`}
-      />
-    </div>
+    <Switch
+      id={id}
+      checked={checked}
+      defaultChecked={defaultChecked}
+      onCheckedChange={onCheckedChange}
+    />
   );
 };
 
