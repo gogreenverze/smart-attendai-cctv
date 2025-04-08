@@ -3,7 +3,7 @@ import React from 'react';
 import { TabsContent } from '@/components/ui/tabs';
 import RecordingsArchive from './RecordingsArchive';
 import DetectionEvents from './DetectionEvents';
-import AISearchResults from './AISearchResults';
+import AISearchResults from './ai-search/AISearchResults';
 import CCTVSettings from './CCTVSettings';
 import CCTVAdminControls from './CCTVAdminControls';
 import { FacialSearchResult } from '@/services/FacialRecognitionService';
