@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { DiscoveredCamera, cameraDiscoveryService } from '@/services/CameraDiscoveryService';
@@ -176,6 +175,7 @@ export const useCCTVState = () => {
     setCurrentTab,
     setSearchDate,
     setSearchPerson,
+    setShowAISearchDialog,
     setAutoAttendanceEnabled,
     handleCameraSelect,
     handleCaptureSnapshot,

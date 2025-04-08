@@ -43,6 +43,7 @@ const CCTVMonitoring: React.FC = () => {
     setCurrentTab,
     setSearchDate,
     setSearchPerson,
+    setShowAISearchDialog,
     setAutoAttendanceEnabled,
     handleCameraSelect,
     handleCaptureSnapshot,
